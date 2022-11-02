@@ -1,8 +1,9 @@
 package model;
 
-public class SubTask extends Task {
+import java.util.Objects;
 
-    int epicId;
+public class SubTask extends Task {
+    private final int epicId;
 
     public SubTask(String summary, String description, Status status, int epicId) {
         super(summary, description, status);
@@ -13,18 +14,28 @@ public class SubTask extends Task {
         return epicId;
     }
 
-    public void setEpicId(int epicId) {
-        this.epicId = epicId;
-    }
-
     @Override
     public String toString() {
         return getClass().getName() +
                 "{" +
+                "id=" + super.getId() + '\'' +
                 "summary='" + super.getSummary() + '\'' +
                 ", description='" + super.getDescription() + '\'' +
                 ", status='" + super.getStatus() + '\'' +
                 ", epicId='" + epicId + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SubTask subTask = (SubTask) o;
+        return epicId == subTask.epicId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(epicId) + super.hashCode();
     }
 }
