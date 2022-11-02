@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class Main {
-    // For using asset please don't forget to add -enableassertions or -ea as VM option
+    // For using assert please don't forget to add -enableassertions or -ea as VM option
     public static void main(String[] args) {
         // Creation test section
         Manager managerCreation = getNewManager();

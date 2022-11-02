@@ -64,8 +64,8 @@ public class Manager {
 
     public void dropListOfSubTasks() {
         listOfSubTasks.clear();
-        listOfEpics.forEach((Integer, Epic) -> Epic.setSubTasksIds(new ArrayList<>()));
-        listOfEpics.forEach((Integer, Epic) -> updateEpicStatus(Epic.getId()));
+        listOfEpics.forEach((id, epic) -> epic.setSubTasksIds(new ArrayList<>()));
+        listOfEpics.forEach((id, epic) -> updateEpicStatus(epic.getId()));
     }
 
     public HashMap<Integer, Task> getListOfTasks() {
@@ -181,19 +181,6 @@ public class Manager {
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Manager manager = (Manager) o;
-        return id == manager.id && Objects.equals(listOfTasks, manager.listOfTasks);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, listOfTasks);
-    }
-
     private void linkEpicToSubTask(SubTask subTask) {
         if (listOfEpics.containsKey(subTask.getEpicId())) {
             Epic epic = listOfEpics.get(subTask.getEpicId());
@@ -211,7 +198,7 @@ public class Manager {
             int counterNew = 0;
             int counterDone = 0;
 
-            for (Integer subTasksId : subTasksIds) {
+            for (int subTasksId : subTasksIds) {
                 if (listOfSubTasks.get(subTasksId).getStatus().equals(Status.NEW)) {
                     counterNew++;
                 } else if (listOfSubTasks.get(subTasksId).getStatus().equals(Status.DONE)) {
