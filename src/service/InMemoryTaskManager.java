@@ -7,20 +7,23 @@ import model.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
+import java.util.List;
 
-public class Manager {
+public class InMemoryTaskManager implements TaskManager {
     private int id = 0;
     private final HashMap<Integer, Task> listOfTasks;
     private final HashMap<Integer, Epic> listOfEpics;
     private final HashMap<Integer, SubTask> listOfSubTasks;
+    private final HistoryManager history;
 
-    public Manager() {
+    public InMemoryTaskManager() {
         this.listOfTasks = new HashMap<>();
         this.listOfEpics = new HashMap<>();
         this.listOfSubTasks = new HashMap<>();
+        this.history = Managers.getDefaultHistory();
     }
 
+    @Override
     public void createNewTask(Task task) {
         if (task != null) {
             id++;
@@ -29,6 +32,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void createNewEpic(Epic epic) {
         if (epic != null) {
             id++;
@@ -37,6 +41,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void createNewSubTask(SubTask subTask) {
         if (subTask != null) {
             id++;
@@ -47,64 +52,82 @@ public class Manager {
         }
     }
 
+    @Override
     public void dropListsOfTasksEpicsAndSubTasks() {
         dropListOfTasks();
         dropListOfEpicsAndSubTasks();
         id = 0;
     }
 
+    @Override
     public void dropListOfTasks() {
         listOfTasks.clear();
     }
 
+    @Override
     public void dropListOfEpicsAndSubTasks() {
         dropListOfSubTasks();
         listOfEpics.clear();
     }
 
+    @Override
     public void dropListOfSubTasks() {
         listOfSubTasks.clear();
         listOfEpics.forEach((id, epic) -> epic.setSubTasksIds(new ArrayList<>()));
         listOfEpics.forEach((id, epic) -> updateEpicStatus(epic.getId()));
     }
 
+    @Override
     public HashMap<Integer, Task> getListOfTasks() {
         return listOfTasks;
     }
 
+    @Override
     public HashMap<Integer, Epic> getListOfEpics() {
         return listOfEpics;
     }
 
+    @Override
     public HashMap<Integer, SubTask> getListOfSubTasks() {
         return listOfSubTasks;
     }
 
+    @Override
     public Task getTaskById(int id) {
         if (listOfTasks.containsKey(id)) {
+            history.add(listOfTasks.get(id));
             return listOfTasks.get(id);
         } else {
             throw new RuntimeException("Can't find task with id " + id);
         }
     }
 
+    @Override
     public Epic getEpicById(int id) {
         if (listOfEpics.containsKey(id)) {
+            history.add(listOfEpics.get(id));
             return listOfEpics.get(id);
         } else {
             throw new RuntimeException("Can't find epic with id " + id);
         }
     }
 
+    @Override
     public SubTask getSubTaskById(int id) {
         if (listOfSubTasks.containsKey(id)) {
+            history.add(listOfSubTasks.get(id));
             return listOfSubTasks.get(id);
         } else {
             throw new RuntimeException("Can't find subtask with id " + id);
         }
     }
 
+    @Override
+    public List<Task> getHistory() {
+        return history.getHistory();
+    }
 
+    @Override
     public void updateTask(int id, Task task) {
         if (listOfTasks.containsKey(id)) {
             listOfTasks.replace(id, task);
@@ -113,6 +136,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void updateEpic(int id, Epic epic) {
         if (listOfEpics.containsKey(id)) {
             epic.setId(id);
@@ -124,6 +148,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void updateSubTask(int id, SubTask subTask) {
         if (listOfSubTasks.containsKey(id)) {
             subTask.setId(id);
@@ -143,6 +168,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void removeTaskById(int id) {
         if (listOfTasks.containsKey(id)) {
             listOfTasks.remove(id);
@@ -151,6 +177,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void removeEpicById(int id) {
         if (listOfEpics.containsKey(id)) {
             Epic epic = listOfEpics.get(id);
@@ -166,6 +193,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void removeSubTaskById(int id) {
         if (listOfSubTasks.containsKey(id)) {
             SubTask subTask = listOfSubTasks.get(id);
