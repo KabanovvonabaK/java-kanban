@@ -52,7 +52,7 @@ public class Main {
                 "Application testing", Status.NEW);
         task.setId(6);
         recreatedListOfTasks.put(6, task);
-        assert Objects.equals(inMemoryTaskManagerGetList.getListOfTasks().get(6).hashCode(), recreatedListOfTasks.get(6).hashCode())
+        assert Objects.equals(inMemoryTaskManagerGetList.getCatalogOfTasks().get(6).hashCode(), recreatedListOfTasks.get(6).hashCode())
                 : "listOfTasks() not the same as the original";
 
         // check listOfEpics()
@@ -68,9 +68,9 @@ public class Main {
         epicSecondRecreated.addSubTaskId(5);
         recreatedListOfEpics.put(1, epicFirstRecreated);
         recreatedListOfEpics.put(4, epicSecondRecreated);
-        assert Objects.equals(recreatedListOfEpics.get(1).hashCode(), inMemoryTaskManagerGetList.getListOfEpics().get(1).hashCode())
+        assert Objects.equals(recreatedListOfEpics.get(1).hashCode(), inMemoryTaskManagerGetList.getCatalogOfEpics().get(1).hashCode())
                 : "First epic from listOfEpics() not the same as the original";
-        assert Objects.equals(recreatedListOfEpics.get(4).hashCode(), inMemoryTaskManagerGetList.getListOfEpics().get(4).hashCode())
+        assert Objects.equals(recreatedListOfEpics.get(4).hashCode(), inMemoryTaskManagerGetList.getCatalogOfEpics().get(4).hashCode())
                 : "First epic from listOfEpics() not the same as the original";
 
         // check listOfSubTasks()
@@ -88,13 +88,13 @@ public class Main {
         recreatedListOfSubTasks.put(3, subTask3);
         recreatedListOfSubTasks.put(5, subTask5);
         assert Objects.equals(recreatedListOfSubTasks.get(2).hashCode(),
-                inMemoryTaskManagerGetList.getListOfSubTasks().get(2).hashCode())
+                inMemoryTaskManagerGetList.getCatalogOfSubTasks().get(2).hashCode())
                 : "First subtask from listOfSubTasks() not the same as the original";
         assert Objects.equals(recreatedListOfSubTasks.get(3).hashCode(),
-                inMemoryTaskManagerGetList.getListOfSubTasks().get(3).hashCode())
+                inMemoryTaskManagerGetList.getCatalogOfSubTasks().get(3).hashCode())
                 : "Second subtask from listOfSubTasks() not the same as the original";
         assert Objects.equals(recreatedListOfSubTasks.get(5).hashCode(),
-                inMemoryTaskManagerGetList.getListOfSubTasks().get(5).hashCode())
+                inMemoryTaskManagerGetList.getCatalogOfSubTasks().get(5).hashCode())
                 : "Third subtask from listOfSubTasks() not the same as the original";
 
         // getTask, getEpic, getSubTask test section
@@ -122,8 +122,8 @@ public class Main {
         Task newTask = new Task("Updated summary of simple task", "Application testing",
                 Status.NEW);
         newTask.setId(6);
-        inMemoryTaskManagerUpdate.updateTask(6, newTask);
-        assert Objects.equals(inMemoryTaskManagerUpdate.getTaskById(6).hashCode(), newTask.hashCode())
+        inMemoryTaskManagerUpdate.updateTask(newTask);
+        assert Objects.equals(inMemoryTaskManagerUpdate.getTaskById(newTask.getId()).hashCode(), newTask.hashCode())
                 : "Task update failed";
 
         Epic newEpic = new Epic("Updated summary of first epic", "Application testing",
@@ -150,29 +150,29 @@ public class Main {
         // Drop test section
         TaskManager inMemoryTaskManagerDrop = getNewManager();
         inMemoryTaskManagerDrop.dropListsOfTasksEpicsAndSubTasks();
-        assert inMemoryTaskManagerDrop.getListOfTasks().size() == 0 : "Tasks list wasn't cleared but should";
-        assert inMemoryTaskManagerDrop.getListOfEpics().size() == 0 : "Epics list wasn't cleared but should";
-        assert inMemoryTaskManagerDrop.getListOfSubTasks().size() == 0 : "SubTasks list wasn't cleared but should";
+        assert inMemoryTaskManagerDrop.getCatalogOfTasks().size() == 0 : "Tasks list wasn't cleared but should";
+        assert inMemoryTaskManagerDrop.getCatalogOfEpics().size() == 0 : "Epics list wasn't cleared but should";
+        assert inMemoryTaskManagerDrop.getCatalogOfSubTasks().size() == 0 : "SubTasks list wasn't cleared but should";
 
         inMemoryTaskManagerDrop = getNewManager();
         inMemoryTaskManagerDrop.dropListOfTasks();
-        assert inMemoryTaskManagerDrop.getListOfTasks().size() == 0 : "Tasks list wasn't cleared but should";
-        assert inMemoryTaskManagerDrop.getListOfEpics().size() == 2 : "Epics list was cleared but shouldn't";
-        assert inMemoryTaskManagerDrop.getListOfSubTasks().size() == 3 : "SubTasks list was cleared but shouldn't";
+        assert inMemoryTaskManagerDrop.getCatalogOfTasks().size() == 0 : "Tasks list wasn't cleared but should";
+        assert inMemoryTaskManagerDrop.getCatalogOfEpics().size() == 2 : "Epics list was cleared but shouldn't";
+        assert inMemoryTaskManagerDrop.getCatalogOfSubTasks().size() == 3 : "SubTasks list was cleared but shouldn't";
 
         inMemoryTaskManagerDrop = getNewManager();
         inMemoryTaskManagerDrop.dropListOfEpicsAndSubTasks();
-        assert inMemoryTaskManagerDrop.getListOfTasks().size() == 1 : "Tasks list was cleared but shouldn't";
-        assert inMemoryTaskManagerDrop.getListOfEpics().size() == 0 : "Epics list wasn't cleared but should";
-        assert inMemoryTaskManagerDrop.getListOfSubTasks().size() == 0 : "SubTasks list wasn't cleared but should";
+        assert inMemoryTaskManagerDrop.getCatalogOfTasks().size() == 1 : "Tasks list was cleared but shouldn't";
+        assert inMemoryTaskManagerDrop.getCatalogOfEpics().size() == 0 : "Epics list wasn't cleared but should";
+        assert inMemoryTaskManagerDrop.getCatalogOfSubTasks().size() == 0 : "SubTasks list wasn't cleared but should";
 
         inMemoryTaskManagerDrop = getNewManager();
         inMemoryTaskManagerDrop.dropListOfSubTasks();
-        assert inMemoryTaskManagerDrop.getListOfTasks().size() == 1 : "Tasks list was cleared but shouldn't";
-        assert inMemoryTaskManagerDrop.getListOfEpics().size() == 2 : "Epics list was cleared but shouldn't";
-        assert inMemoryTaskManagerDrop.getListOfSubTasks().size() == 0 : "SubTasks list wasn't cleared but should";
+        assert inMemoryTaskManagerDrop.getCatalogOfTasks().size() == 1 : "Tasks list was cleared but shouldn't";
+        assert inMemoryTaskManagerDrop.getCatalogOfEpics().size() == 2 : "Epics list was cleared but shouldn't";
+        assert inMemoryTaskManagerDrop.getCatalogOfSubTasks().size() == 0 : "SubTasks list wasn't cleared but should";
         ArrayList<ArrayList<Integer>> subTasksIds = new ArrayList<>();
-        inMemoryTaskManagerDrop.getListOfEpics().forEach((Integer, Epic) -> subTasksIds.add(Epic.getSubTasksIds()));
+        inMemoryTaskManagerDrop.getCatalogOfEpics().forEach((Integer, Epic) -> subTasksIds.add(Epic.getSubTasksIds()));
         assert subTasksIds.get(0).size() == 0 : "Not all subtasks ids were cleared from epics";
         assert subTasksIds.get(1).size() == 0 : "Not all subtasks ids were cleared from epics";
 
@@ -180,28 +180,27 @@ public class Main {
         TaskManager inMemoryTaskManagerRemove = getNewManager();
 
         inMemoryTaskManagerRemove.removeTaskById(6);
-        assert Objects.equals(inMemoryTaskManagerRemove.getListOfTasks().size(), 0)
+        assert Objects.equals(inMemoryTaskManagerRemove.getCatalogOfTasks().size(), 0)
                 : "Remove task by id 6 failed";
 
         inMemoryTaskManagerRemove.removeEpicById(1);
-        assert Objects.equals(inMemoryTaskManagerRemove.getListOfEpics().size(), 1)
+        assert Objects.equals(inMemoryTaskManagerRemove.getCatalogOfEpics().size(), 1)
                 : "Remove epic by id 1 failed";
-        assert Objects.equals(inMemoryTaskManagerRemove.getListOfSubTasks().size(), 1)
+        assert Objects.equals(inMemoryTaskManagerRemove.getCatalogOfSubTasks().size(), 1)
                 : "Remove subtasks after removing epic with id 1 failed";
 
         SubTask subTask4 = new SubTask("Summary for first subtask of second epic",
                 "Application testing", Status.IN_PROGRESS, 4);
         inMemoryTaskManagerRemove.updateSubTask(5, subTask4);
         inMemoryTaskManagerRemove.removeSubTaskById(5);
-        assert Objects.equals(inMemoryTaskManagerRemove.getListOfSubTasks().size(), 0)
+        assert Objects.equals(inMemoryTaskManagerRemove.getCatalogOfSubTasks().size(), 0)
                 : "Remove last one subtask by id 5 failed";
-        assert Objects.equals(inMemoryTaskManagerRemove.getListOfEpics().get(4).getStatus(), Status.NEW)
+        assert Objects.equals(inMemoryTaskManagerRemove.getCatalogOfEpics().get(4).getStatus(), Status.NEW)
                 : "After removing last subtask linked to epic - " +
                 "status if such epic didn't change from IN_PROGRESS to NEW";
 
         // History test section
-        Managers manager = new Managers();
-        TaskManager inMemoryTaskManagerHistory = manager.getDefault();
+        TaskManager inMemoryTaskManagerHistory = Managers.getDefault();
 
         Epic epicFirst = new Epic("Summary of first epic", "Application testing", Status.NEW);
         SubTask subTaskFirstForFirstEpic = new SubTask("Summary for first subtask of first epic",
@@ -257,8 +256,7 @@ public class Main {
     }
 
     private static TaskManager getNewManager() {
-        Managers manager = new Managers();
-        TaskManager inMemoryTaskManager = manager.getDefault();
+        TaskManager inMemoryTaskManager = Managers.getDefault();
 
         Epic epicFirst = new Epic("Summary of first epic", "Application testing", Status.NEW);
         SubTask subTaskFirstForFirstEpic = new SubTask("Summary for first subtask of first epic",

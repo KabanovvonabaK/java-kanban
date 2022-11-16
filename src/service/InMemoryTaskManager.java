@@ -11,15 +11,15 @@ import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
     private int id = 0;
-    private final HashMap<Integer, Task> listOfTasks;
-    private final HashMap<Integer, Epic> listOfEpics;
-    private final HashMap<Integer, SubTask> listOfSubTasks;
+    private final HashMap<Integer, Task> catalogOfTasks;
+    private final HashMap<Integer, Epic> catalogOfEpics;
+    private final HashMap<Integer, SubTask> catalogOfSubTasks;
     private final HistoryManager history;
 
     public InMemoryTaskManager() {
-        this.listOfTasks = new HashMap<>();
-        this.listOfEpics = new HashMap<>();
-        this.listOfSubTasks = new HashMap<>();
+        this.catalogOfTasks = new HashMap<>();
+        this.catalogOfEpics = new HashMap<>();
+        this.catalogOfSubTasks = new HashMap<>();
         this.history = Managers.getDefaultHistory();
     }
 
@@ -28,7 +28,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (task != null) {
             id++;
             task.setId(id);
-            listOfTasks.put(id, task);
+            catalogOfTasks.put(id, task);
         }
     }
 
@@ -37,7 +37,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic != null) {
             id++;
             epic.setId(id);
-            listOfEpics.put(id, epic);
+            catalogOfEpics.put(id, epic);
         }
     }
 
@@ -46,7 +46,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (subTask != null) {
             id++;
             subTask.setId(id);
-            listOfSubTasks.put(id, subTask);
+            catalogOfSubTasks.put(id, subTask);
             linkEpicToSubTask(subTask);
             updateEpicStatus(subTask.getEpicId());
         }
@@ -61,42 +61,42 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void dropListOfTasks() {
-        listOfTasks.clear();
+        catalogOfTasks.clear();
     }
 
     @Override
     public void dropListOfEpicsAndSubTasks() {
         dropListOfSubTasks();
-        listOfEpics.clear();
+        catalogOfEpics.clear();
     }
 
     @Override
     public void dropListOfSubTasks() {
-        listOfSubTasks.clear();
-        listOfEpics.forEach((id, epic) -> epic.setSubTasksIds(new ArrayList<>()));
-        listOfEpics.forEach((id, epic) -> updateEpicStatus(epic.getId()));
+        catalogOfSubTasks.clear();
+        catalogOfEpics.forEach((id, epic) -> epic.setSubTasksIds(new ArrayList<>()));
+        catalogOfEpics.forEach((id, epic) -> updateEpicStatus(epic.getId()));
     }
 
     @Override
-    public HashMap<Integer, Task> getListOfTasks() {
-        return listOfTasks;
+    public HashMap<Integer, Task> getCatalogOfTasks() {
+        return catalogOfTasks;
     }
 
     @Override
-    public HashMap<Integer, Epic> getListOfEpics() {
-        return listOfEpics;
+    public HashMap<Integer, Epic> getCatalogOfEpics() {
+        return catalogOfEpics;
     }
 
     @Override
-    public HashMap<Integer, SubTask> getListOfSubTasks() {
-        return listOfSubTasks;
+    public HashMap<Integer, SubTask> getCatalogOfSubTasks() {
+        return catalogOfSubTasks;
     }
 
     @Override
     public Task getTaskById(int id) {
-        if (listOfTasks.containsKey(id)) {
-            history.add(listOfTasks.get(id));
-            return listOfTasks.get(id);
+        if (catalogOfTasks.containsKey(id)) {
+            history.add(catalogOfTasks.get(id));
+            return catalogOfTasks.get(id);
         } else {
             throw new RuntimeException("Can't find task with id " + id);
         }
@@ -104,9 +104,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Epic getEpicById(int id) {
-        if (listOfEpics.containsKey(id)) {
-            history.add(listOfEpics.get(id));
-            return listOfEpics.get(id);
+        if (catalogOfEpics.containsKey(id)) {
+            history.add(catalogOfEpics.get(id));
+            return catalogOfEpics.get(id);
         } else {
             throw new RuntimeException("Can't find epic with id " + id);
         }
@@ -114,9 +114,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public SubTask getSubTaskById(int id) {
-        if (listOfSubTasks.containsKey(id)) {
-            history.add(listOfSubTasks.get(id));
-            return listOfSubTasks.get(id);
+        if (catalogOfSubTasks.containsKey(id)) {
+            history.add(catalogOfSubTasks.get(id));
+            return catalogOfSubTasks.get(id);
         } else {
             throw new RuntimeException("Can't find subtask with id " + id);
         }
@@ -128,20 +128,20 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateTask(int id, Task task) {
-        if (listOfTasks.containsKey(id)) {
-            listOfTasks.replace(id, task);
+    public void updateTask(Task task) {
+        if (catalogOfTasks.containsKey(task.getId())) {
+            catalogOfTasks.replace(task.getId(), task);
         } else {
-            throw new RuntimeException("Can't update task with id " + id + ", no task with such id.");
+            throw new RuntimeException("Can't update task with id " + task.getId() + ", no task with such id.");
         }
     }
 
     @Override
     public void updateEpic(int id, Epic epic) {
-        if (listOfEpics.containsKey(id)) {
+        if (catalogOfEpics.containsKey(id)) {
             epic.setId(id);
-            epic.setSubTasksIds(listOfEpics.get(id).getSubTasksIds());
-            listOfEpics.replace(id, epic);
+            epic.setSubTasksIds(catalogOfEpics.get(id).getSubTasksIds());
+            catalogOfEpics.replace(id, epic);
             updateEpicStatus(id);
         } else {
             throw new RuntimeException("Can't update epic with id " + id + ", no epic with such id.");
@@ -150,18 +150,18 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubTask(int id, SubTask subTask) {
-        if (listOfSubTasks.containsKey(id)) {
+        if (catalogOfSubTasks.containsKey(id)) {
             subTask.setId(id);
-            if (listOfSubTasks.get(id).getEpicId() != subTask.getEpicId()) {
+            if (catalogOfSubTasks.get(id).getEpicId() != subTask.getEpicId()) {
                 linkEpicToSubTask(subTask);
                 updateEpicStatus(subTask.getEpicId());
-                Epic epic = listOfEpics.get(subTask.getEpicId());
+                Epic epic = catalogOfEpics.get(subTask.getEpicId());
                 ArrayList<Integer> subTasksIds = epic.getSubTasksIds();
                 subTasksIds.remove((Integer) id);
                 epic.setSubTasksIds(subTasksIds);
                 updateEpic(subTask.getEpicId(), epic);
             }
-            listOfSubTasks.replace(id, subTask);
+            catalogOfSubTasks.replace(id, subTask);
             updateEpicStatus(subTask.getEpicId());
         } else {
             throw new RuntimeException("Can't update subtask with id " + id + ", no subtask with such id.");
@@ -170,8 +170,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeTaskById(int id) {
-        if (listOfTasks.containsKey(id)) {
-            listOfTasks.remove(id);
+        if (catalogOfTasks.containsKey(id)) {
+            catalogOfTasks.remove(id);
         } else {
             throw new RuntimeException("Task with id " + id + " don't exist.");
         }
@@ -179,13 +179,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeEpicById(int id) {
-        if (listOfEpics.containsKey(id)) {
-            Epic epic = listOfEpics.get(id);
-            listOfEpics.remove(id);
+        if (catalogOfEpics.containsKey(id)) {
+            Epic epic = catalogOfEpics.get(id);
+            catalogOfEpics.remove(id);
             ArrayList<Integer> subTasksIds = epic.getSubTasksIds();
             if (subTasksIds != null) {
                 for (Integer subTasksId : subTasksIds) {
-                    listOfSubTasks.remove(subTasksId);
+                    catalogOfSubTasks.remove(subTasksId);
                 }
             }
         } else {
@@ -195,11 +195,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeSubTaskById(int id) {
-        if (listOfSubTasks.containsKey(id)) {
-            SubTask subTask = listOfSubTasks.get(id);
-            Epic epic = listOfEpics.get(subTask.getEpicId());
+        if (catalogOfSubTasks.containsKey(id)) {
+            SubTask subTask = catalogOfSubTasks.get(id);
+            Epic epic = catalogOfEpics.get(subTask.getEpicId());
             ArrayList<Integer> subTasksIds = epic.getSubTasksIds();
-            listOfSubTasks.remove(id);
+            catalogOfSubTasks.remove(id);
             subTasksIds.remove((Integer) id);
             epic.setSubTasksIds(subTasksIds);
             updateEpic(subTask.getEpicId(), epic);
@@ -210,26 +210,26 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void linkEpicToSubTask(SubTask subTask) {
-        if (listOfEpics.containsKey(subTask.getEpicId())) {
-            Epic epic = listOfEpics.get(subTask.getEpicId());
+        if (catalogOfEpics.containsKey(subTask.getEpicId())) {
+            Epic epic = catalogOfEpics.get(subTask.getEpicId());
             epic.addSubTaskId(subTask.getId());
-            listOfEpics.replace(subTask.getEpicId(), epic);
+            catalogOfEpics.replace(subTask.getEpicId(), epic);
         } else {
             throw new RuntimeException("Can't find epic with id " + id);
         }
     }
 
     private void updateEpicStatus(int id) {
-        if (listOfEpics.containsKey(id)) {
-            Epic epic = listOfEpics.get(id);
+        if (catalogOfEpics.containsKey(id)) {
+            Epic epic = catalogOfEpics.get(id);
             ArrayList<Integer> subTasksIds = epic.getSubTasksIds();
             int counterNew = 0;
             int counterDone = 0;
 
             for (int subTasksId : subTasksIds) {
-                if (listOfSubTasks.get(subTasksId).getStatus().equals(Status.NEW)) {
+                if (catalogOfSubTasks.get(subTasksId).getStatus().equals(Status.NEW)) {
                     counterNew++;
-                } else if (listOfSubTasks.get(subTasksId).getStatus().equals(Status.DONE)) {
+                } else if (catalogOfSubTasks.get(subTasksId).getStatus().equals(Status.DONE)) {
                     counterDone++;
                 }
             }
@@ -240,7 +240,7 @@ public class InMemoryTaskManager implements TaskManager {
             } else {
                 epic.setStatus(Status.IN_PROGRESS);
             }
-            listOfEpics.replace(id, epic);
+            catalogOfEpics.replace(id, epic);
         } else {
             throw new RuntimeException("Can't update status for epic with id " + id + ", can't find epic with such id");
         }

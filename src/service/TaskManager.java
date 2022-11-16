@@ -22,11 +22,11 @@ public interface TaskManager {
 
     void dropListOfSubTasks();
 
-    HashMap<Integer, Task> getListOfTasks();
+    HashMap<Integer, Task> getCatalogOfTasks();
 
-    HashMap<Integer, Epic> getListOfEpics();
+    HashMap<Integer, Epic> getCatalogOfEpics();
 
-    HashMap<Integer, SubTask> getListOfSubTasks();
+    HashMap<Integer, SubTask> getCatalogOfSubTasks();
 
     Task getTaskById(int id);
 
@@ -36,7 +36,7 @@ public interface TaskManager {
 
     List<Task> getHistory();
 
-    void updateTask(int id, Task task);
+    void updateTask(Task task);
 
     void updateEpic(int id, Epic epic);
 
