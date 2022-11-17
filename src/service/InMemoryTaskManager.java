@@ -137,34 +137,34 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateEpic(int id, Epic epic) {
-        if (catalogOfEpics.containsKey(id)) {
-            epic.setId(id);
-            epic.setSubTasksIds(catalogOfEpics.get(id).getSubTasksIds());
-            catalogOfEpics.replace(id, epic);
-            updateEpicStatus(id);
+    public void updateEpic(Epic epic) {
+        if (catalogOfEpics.containsKey(epic.getId())) {
+            epic.setId(epic.getId());
+            epic.setSubTasksIds(catalogOfEpics.get(epic.getId()).getSubTasksIds());
+            catalogOfEpics.replace(epic.getId(), epic);
+            updateEpicStatus(epic.getId());
         } else {
-            throw new RuntimeException("Can't update epic with id " + id + ", no epic with such id.");
+            throw new RuntimeException("Can't update epic with id " + epic.getId() + ", no epic with such id.");
         }
     }
 
     @Override
-    public void updateSubTask(int id, SubTask subTask) {
-        if (catalogOfSubTasks.containsKey(id)) {
-            subTask.setId(id);
-            if (catalogOfSubTasks.get(id).getEpicId() != subTask.getEpicId()) {
+    public void updateSubTask(SubTask subTask) {
+        if (catalogOfSubTasks.containsKey(subTask.getId())) {
+            subTask.setId(subTask.getId());
+            if (catalogOfSubTasks.get(subTask.getId()).getEpicId() != subTask.getEpicId()) {
                 linkEpicToSubTask(subTask);
                 updateEpicStatus(subTask.getEpicId());
                 Epic epic = catalogOfEpics.get(subTask.getEpicId());
                 ArrayList<Integer> subTasksIds = epic.getSubTasksIds();
-                subTasksIds.remove((Integer) id);
+                subTasksIds.remove((Integer) subTask.getId());
                 epic.setSubTasksIds(subTasksIds);
-                updateEpic(subTask.getEpicId(), epic);
+                updateEpic(epic);
             }
-            catalogOfSubTasks.replace(id, subTask);
+            catalogOfSubTasks.replace(subTask.getId(), subTask);
             updateEpicStatus(subTask.getEpicId());
         } else {
-            throw new RuntimeException("Can't update subtask with id " + id + ", no subtask with such id.");
+            throw new RuntimeException("Can't update subtask with id " + subTask.getId() + ", no subtask with such id.");
         }
     }
 
@@ -202,7 +202,7 @@ public class InMemoryTaskManager implements TaskManager {
             catalogOfSubTasks.remove(id);
             subTasksIds.remove((Integer) id);
             epic.setSubTasksIds(subTasksIds);
-            updateEpic(subTask.getEpicId(), epic);
+            updateEpic(epic);
             updateEpicStatus(subTask.getEpicId());
         } else {
             throw new RuntimeException("SubTask with id " + id + " don't exist.");

@@ -38,9 +38,9 @@ public interface TaskManager {
 
     void updateTask(Task task);
 
-    void updateEpic(int id, Epic epic);
+    void updateEpic(Epic epic);
 
-    void updateSubTask(int id, SubTask subTask);
+    void updateSubTask(SubTask subTask);
 
     void removeTaskById(int id);
 

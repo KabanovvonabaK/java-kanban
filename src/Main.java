@@ -133,7 +133,7 @@ public class Main {
         newEpic.addSubTaskId(3);
         int newEpicHashCode = newEpic.hashCode();
         newEpic.setStatus(Status.DONE);
-        inMemoryTaskManagerUpdate.updateEpic(1, newEpic);
+        inMemoryTaskManagerUpdate.updateEpic(newEpic);
         assert Objects.equals(inMemoryTaskManagerUpdate.getEpicById(1).hashCode(), newEpicHashCode)
                 : "Epic update failed";
 
@@ -141,7 +141,7 @@ public class Main {
                 "Application testing", Status.DONE, 1);
         subTask1.setId(2);
         int newSubTaskHashCode = subTask1.hashCode();
-        inMemoryTaskManagerUpdate.updateSubTask(2, subTask1);
+        inMemoryTaskManagerUpdate.updateSubTask(subTask1);
         assert Objects.equals(inMemoryTaskManagerUpdate.getSubTaskById(2).hashCode(), newSubTaskHashCode)
                 : "SubTask update failed";
         assert Objects.equals(inMemoryTaskManagerUpdate.getEpicById(1).getStatus(), Status.IN_PROGRESS)
@@ -191,7 +191,8 @@ public class Main {
 
         SubTask subTask4 = new SubTask("Summary for first subtask of second epic",
                 "Application testing", Status.IN_PROGRESS, 4);
-        inMemoryTaskManagerRemove.updateSubTask(5, subTask4);
+        subTask4.setId(5);
+        inMemoryTaskManagerRemove.updateSubTask(subTask4);
         inMemoryTaskManagerRemove.removeSubTaskById(5);
         assert Objects.equals(inMemoryTaskManagerRemove.getCatalogOfSubTasks().size(), 0)
                 : "Remove last one subtask by id 5 failed";
