@@ -240,10 +240,16 @@ public class Main {
         inMemoryTaskManagerHistory.getEpicById(4);
         inMemoryTaskManagerHistory.getEpicById(7);
         inMemoryTaskManagerHistory.getEpicById(10);
+        inMemoryTaskManagerHistory.getEpicById(10);
+        inMemoryTaskManagerHistory.getSubTaskById(2);
         inMemoryTaskManagerHistory.getSubTaskById(2);
         inMemoryTaskManagerHistory.getSubTaskById(3);
+        inMemoryTaskManagerHistory.getSubTaskById(3);
+        inMemoryTaskManagerHistory.getSubTaskById(5);
         inMemoryTaskManagerHistory.getSubTaskById(5);
         inMemoryTaskManagerHistory.getSubTaskById(8);
+        inMemoryTaskManagerHistory.getSubTaskById(8);
+        inMemoryTaskManagerHistory.getSubTaskById(9);
         inMemoryTaskManagerHistory.getSubTaskById(9);
         inMemoryTaskManagerHistory.getSubTaskById(11);
         inMemoryTaskManagerHistory.getTaskById(12);
@@ -252,7 +258,7 @@ public class Main {
             System.out.println(t);
         }
 
-        assert Objects.equals(inMemoryTaskManagerHistory.getHistory().size(), 10)
+        assert Objects.equals(inMemoryTaskManagerHistory.getHistory().size(), 12)
                 : "History got wrong size";
     }
 
