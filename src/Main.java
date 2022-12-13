@@ -238,6 +238,7 @@ public class Main {
         inMemoryTaskManagerHistory.getTaskById(6);
         inMemoryTaskManagerHistory.getEpicById(1);
         inMemoryTaskManagerHistory.getEpicById(4);
+        inMemoryTaskManagerHistory.getEpicById(10);
         inMemoryTaskManagerHistory.getEpicById(7);
         inMemoryTaskManagerHistory.getEpicById(10);
         inMemoryTaskManagerHistory.getEpicById(10);
@@ -253,6 +254,8 @@ public class Main {
         inMemoryTaskManagerHistory.getSubTaskById(9);
         inMemoryTaskManagerHistory.getSubTaskById(11);
         inMemoryTaskManagerHistory.getTaskById(12);
+        inMemoryTaskManagerHistory.getSubTaskById(8);
+        inMemoryTaskManagerHistory.getEpicById(1);
 
         for (Task t : inMemoryTaskManagerHistory.getHistory()) {
             System.out.println(t);
