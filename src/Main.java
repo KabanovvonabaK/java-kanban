@@ -256,13 +256,36 @@ public class Main {
         inMemoryTaskManagerHistory.getTaskById(12);
         inMemoryTaskManagerHistory.getSubTaskById(8);
         inMemoryTaskManagerHistory.getEpicById(1);
+        inMemoryTaskManagerHistory.getEpicById(10);
+        inMemoryTaskManagerHistory.getTaskById(6);
 
         for (Task t : inMemoryTaskManagerHistory.getHistory()) {
             System.out.println(t);
         }
 
+        ArrayList<Integer> ids = new ArrayList<>();
+        for (Task taskFromHistory : inMemoryTaskManagerHistory.getHistory()) {
+            ids.add(taskFromHistory.getId());
+        }
+
+        ArrayList<Integer> idsToCompare = new ArrayList<>();
+        idsToCompare.add(4);
+        idsToCompare.add(7);
+        idsToCompare.add(2);
+        idsToCompare.add(3);
+        idsToCompare.add(5);
+        idsToCompare.add(9);
+        idsToCompare.add(11);
+        idsToCompare.add(12);
+        idsToCompare.add(8);
+        idsToCompare.add(1);
+        idsToCompare.add(10);
+        idsToCompare.add(6);
+
         assert Objects.equals(inMemoryTaskManagerHistory.getHistory().size(), 12)
                 : "History got wrong size";
+
+        assert Objects.equals(ids, idsToCompare) : "Wrong history order";
     }
 
     private static TaskManager getNewManager() {

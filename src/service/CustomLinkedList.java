@@ -4,42 +4,59 @@ import model.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 
-public class CustomLinkedList<T> {
+public class CustomLinkedList {
 
-    HashMap<Integer, Integer> historyMap = new HashMap<>();
-    LinkedList<Node> historyLinkedList = new LinkedList<>();
+    HashMap<Integer, Node> historyMap = new HashMap<>();
+    Node head;
+    Node tail;
 
     public ArrayList<Task> getTasks() {
         ArrayList<Task> tasks = new ArrayList<>();
-        if (historyMap.isEmpty()) {
-            return tasks;
-        } else {
-            for (Node node : historyLinkedList) {
+        if (!historyMap.isEmpty()) {
+            Node node = head;
+            while (node != null) {
                 tasks.add(node.task);
+                node = node.next;
             }
         }
         return tasks;
     }
 
     public void linkLast(Task task) {
-        Node newNode = new Node(task);
         int taskId = task.getId();
+        Node last = tail;
+        Node newNode = new Node(task, last, null);
+        tail = newNode;
 
-        if (historyMap.isEmpty() || !historyMap.containsKey(taskId)) {
-            historyLinkedList.add(newNode);
+        if (last == null) {
+            head = newNode;
         } else {
-            historyLinkedList.remove((int) historyMap.get(taskId));
-            historyLinkedList.add(newNode);
+            last.next = newNode;
         }
-        historyMap.put(taskId, historyLinkedList.size() - 1);
+        if (historyMap.containsKey(taskId)) {
+            removeNode(taskId);
+        }
+        historyMap.put(taskId, newNode);
     }
 
-    public void removeNode(Node node) {
-        if (historyMap.containsValue(node)) {
-            historyMap.remove(node);
-            historyLinkedList.remove(node);
+    public void removeNode(int id) {
+        if (historyMap.containsKey(id)) {
+            Node nodeActual = historyMap.get(id);
+            Node nodePrev = nodeActual.prev;
+            Node nodeNext = nodeActual.next;
+
+            if (nodePrev == null) {
+                head = nodeNext;
+            } else {
+                nodePrev.next = nodeNext;
+            }
+
+            if (nodeNext == null) {
+                tail = nodePrev;
+            } else {
+                nodeNext.prev = nodePrev;
+            }
         }
     }
 }

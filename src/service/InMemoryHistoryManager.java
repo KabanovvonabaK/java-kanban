@@ -5,10 +5,10 @@ import model.Task;
 import java.util.ArrayList;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final CustomLinkedList<Task> history;
+    private final CustomLinkedList history;
 
     public InMemoryHistoryManager() {
-        history = new CustomLinkedList<>();
+        history = new CustomLinkedList();
     }
 
     @Override
@@ -23,7 +23,6 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-        ArrayList<Task> tasks = history.getTasks();
-        history.removeNode(new Node(tasks.get(id)));
+        history.removeNode(id);
     }
 }
