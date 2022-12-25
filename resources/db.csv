@@ -1,0 +1,6 @@
+1,TASK,Task1,NEW,Description task1,null,null
+2,EPIC,Epic2,DONE,Description epic2 from file,null,null
+3,SUBTASK,Sub Task2,DONE,Description sub task3,2,null
+4,EPIC,Epic3,DONE,Description epic3 from file,null,null
+
+2,3,1,2,4,2

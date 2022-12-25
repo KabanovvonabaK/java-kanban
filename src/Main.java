@@ -259,10 +259,6 @@ public class Main {
         inMemoryTaskManagerHistory.getEpicById(10);
         inMemoryTaskManagerHistory.getTaskById(6);
 
-        for (Task t : inMemoryTaskManagerHistory.getHistory()) {
-            System.out.println(t);
-        }
-
         ArrayList<Integer> ids = new ArrayList<>();
         for (Task taskFromHistory : inMemoryTaskManagerHistory.getHistory()) {
             ids.add(taskFromHistory.getId());
