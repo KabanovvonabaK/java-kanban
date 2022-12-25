@@ -1,6 +1,5 @@
 package service;
 
-import exceptions.ManagerSaveException;
 import model.*;
 
 import java.io.*;
@@ -14,7 +13,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     private File file;
 
-    public FileBackedTasksManager(File file) throws IOException {
+    public FileBackedTasksManager(File file) {
         super();
         this.file = file;
     }
@@ -137,7 +136,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     bw.write(toString(task.getValue()) + "\n");
                 }
             } catch (IOException e) {
-                System.out.println("blahblahblah");
+                e.printStackTrace();
             }
 
             try (BufferedWriter bw = new BufferedWriter(new FileWriter(tmpFile, true))) {
@@ -167,7 +166,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         switch (type) {
             // запятые внутри которых нет значения нужны для формирования одной общей модели хранения данных
             case TASK:
-                toReturn = String.format("%s,%s,%s,%s,%s,null,null",
+                toReturn = String.format("%s,%s,%s,%s,%s,null",
                         task.getId(),
                         TASK,
                         task.getSummary(),
@@ -177,35 +176,17 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             case EPIC:
                 // приведение типов необходимо для доступа к уникальному методу getSubTasksIds()
                 Epic epic = (Epic) task;
-                // приведем id сабтасков к формату [X-X-X]
-                StringBuilder sb = new StringBuilder();
-                ArrayList<Integer> subTaskIds = epic.getSubTasksIds();
-                if (subTaskIds.size() > 0) {
-                    sb.append("[");
-                    for (int i = 0; i < subTaskIds.size(); i++) {
-                        sb.append(subTaskIds.get(i));
-                        if (i != subTaskIds.size() - 1) {
-                            sb.append("-");
-                        } else {
-                            sb.append("]");
-                        }
-                    }
-                } else {
-                    sb.append("null");
-                }
-
-                toReturn = String.format("%s,%s,%s,%s,%s,null,%s",
+                toReturn = String.format("%s,%s,%s,%s,%s,null",
                         epic.getId(),
                         EPIC,
                         epic.getSummary(),
                         epic.getStatus(),
-                        epic.getDescription(),
-                        sb);
+                        epic.getDescription());
                 break;
             case SUBTASK:
                 // приведение типов необходимо для доступа к уникальному методу getEpicId()
                 SubTask subTask = (SubTask) task;
-                toReturn = String.format("%s,%s,%s,%s,%s,%s,null",
+                toReturn = String.format("%s,%s,%s,%s,%s,%s",
                         subTask.getId(),
                         SUBTASK,
                         subTask.getSummary(),
@@ -228,7 +209,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 3 status
                 4 description
                 5 epicId - can be null
-                6 subTasksIds - can be null
          */
         String testString = s[3];
         Status status = Status.valueOf(testString);
@@ -240,17 +220,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             case EPIC:
                 Epic epic = new Epic(s[2], s[4], status);
                 epic.setId(Integer.parseInt(s[0]));
-                ArrayList<Integer> subTasksIds = new ArrayList<>();
-                if (!s[6].equals("null")) {
-                    String[] subTasksIdsStrings = s[6]
-                            .replace("[", "")
-                            .replace("]", "")
-                            .split("-");
-                    for (String id : subTasksIdsStrings) {
-                        subTasksIds.add(Integer.parseInt(id));
-                    }
-                    epic.setSubTasksIds(subTasksIds);
-                }
                 task = epic;
                 break;
             case SUBTASK:
@@ -329,6 +298,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     /*
         Не догадался как правильно сделать так что бы одновременно читать с файла и писать, потоки мы еще не проходили
         (если они вообще тут помогут), поэтому реализовал через два файла.
+        Как накладные расходы - этот метод надо принудительно вызывать, похоже на закрытие сессии.
      */
     private void replaceOriginalFileWithTmp() {
         File tmpFile = new File("resources" + File.separator + "tmp.csv");
@@ -348,13 +318,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         FileBackedTasksManager manager = new FileBackedTasksManager(
                 new File("resources" + File.separator + "dbForTests.csv"));
         // тестируем fromString()
-        Task task = manager.fromString("2,EPIC,Epic2,DONE,Description epic2,null,[2-3-4]");
+        Task task = manager.fromString("2,EPIC,Epic2,DONE,Description epic2,null");
         Epic epic = new Epic("Epic2", "Description epic2", Status.DONE);
         epic.setId(2);
         ArrayList<Integer> subTasksIds = new ArrayList<>();
-        subTasksIds.add(2);
-        subTasksIds.add(3);
-        subTasksIds.add(4);
         epic.setSubTasksIds(subTasksIds);
         assert Objects.equals(task.hashCode(), epic.hashCode())
                 : "fromString() can't convert String to Task properly";
@@ -366,7 +333,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         newEpic.addSubTaskId(2);
         newEpic.addSubTaskId(3);
 
-        assert Objects.equals("1,EPIC,First epic,NEW,Application testing,null,[2-3]",
+        assert Objects.equals("1,EPIC,First epic,NEW,Application testing,null",
                 manager.toString(newEpic)) :
                 "toString() can't convert Task to String properly";
 
@@ -374,11 +341,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         FileBackedTasksManager managerLoadFromFile = loadFromFile(
                 new File("resources" + File.separator + "dbForTests.csv"));
 
-        Task taskAnotherOne = new Task("Task created manually", "desc", Status.NEW);
+        Task taskAnotherOne = new Task("Task created manually1", "desc", Status.NEW);
         managerLoadFromFile.createNewTask(taskAnotherOne);
         managerLoadFromFile.getTaskById(taskAnotherOne.getId());
 
-        assert Objects.equals(managerLoadFromFile.getHistory().size(), 5)
+        assert Objects.equals(managerLoadFromFile.getHistory().size(), 6)
                 : "history got wrong size";
         assert Objects.equals(managerLoadFromFile.getCatalogOfTasks().size(), 2)
                 : "list of Tasks got wrong size";
@@ -388,33 +355,32 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 : "list of SubTasks for wrong size";
 
         Task taskToCompare = new Task("Task1", "Description task1", Status.NEW);
-        taskToCompare.setId(1);
+        taskToCompare.setId(3);
         Epic epicToCompare1 = new Epic("Epic2", "Description epic2 from file", Status.DONE);
-        epicToCompare1.setId(2);
-        ArrayList<Integer> subTasksIdsFroEpicToCompare1 = new ArrayList<>();
-        subTasksIdsFroEpicToCompare1.add(5);
-        subTasksIdsFroEpicToCompare1.add(6);
-        epicToCompare1.setSubTasksIds(subTasksIdsFroEpicToCompare1);
+        epicToCompare1.setId(1);
         Epic epicToCompare2 = new Epic("Epic3", "Description epic3 from file", Status.DONE);
-        epicToCompare2.setId(4);
+        epicToCompare2.setId(2);
+        ArrayList<Integer> subTasksIdsFroEpicToCompare2 = new ArrayList<>();
+        subTasksIdsFroEpicToCompare2.add(4);
+        subTasksIdsFroEpicToCompare2.add(5);
+        epicToCompare2.setSubTasksIds(subTasksIdsFroEpicToCompare2);
         SubTask subTaskToCompare = new SubTask("Sub Task2", "Description sub task3", Status.DONE, 2);
-        subTaskToCompare.setId(3);
+        subTaskToCompare.setId(4);
 
         Map<Integer, Epic> listOfEpics = managerLoadFromFile.getCatalogOfEpics();
         Map<Integer, Task> listOfTasks = managerLoadFromFile.getCatalogOfTasks();
         Map<Integer, SubTask> listOfSubTasks = managerLoadFromFile.getCatalogOfSubTasks();
 
-        assert Objects.equals(listOfEpics.get(2), epicToCompare1)
+        assert Objects.equals(listOfEpics.get(1), epicToCompare1)
                 : "error during loading an epic";
-        assert Objects.equals(listOfEpics.get(4), epicToCompare2)
+        assert Objects.equals(listOfEpics.get(2), epicToCompare2)
                 : "error during loading an epic";
-        assert Objects.equals(listOfTasks.get(1), taskToCompare)
+        assert Objects.equals(listOfTasks.get(3), taskToCompare)
                 : "error during loading a task";
-        assert Objects.equals(listOfSubTasks.get(3), subTaskToCompare)
+        assert Objects.equals(listOfSubTasks.get(4), subTaskToCompare)
                 : "error during loading an subTask";
         assert Objects.equals(listOfTasks.get(6), taskAnotherOne)
                 : "error during loading a task";
-
 
         // тестируем historyToString()
         HistoryManager historyManager = new InMemoryHistoryManager();
@@ -426,7 +392,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         historyManager.add(taskToCompare);
         historyManager.add(subTaskToCompare);
 
-        assert Objects.equals(historyToString(historyManager), "4,2,1,3")
+        assert Objects.equals(historyToString(historyManager), "2,1,3,4")
                 : "historyToString is broken";
 
         // тестируем replaceOriginalFileWithTmp() - tmp.csv уже должен существовать
@@ -437,6 +403,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             e.printStackTrace();
         }
         FileBackedTasksManager managerReplace = new FileBackedTasksManager(fileToReplace);
+        // для отслеживания того что пишется в tmp.csv в момент работы приложения необходимо замьютить строку ниже
         managerReplace.replaceOriginalFileWithTmp();
     }
 }
