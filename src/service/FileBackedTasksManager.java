@@ -1,5 +1,6 @@
 package service;
 
+import exceptions.ManagerSaveException;
 import model.*;
 
 import java.io.*;
@@ -11,7 +12,7 @@ import static model.Types.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
 
-    private File file;
+    private final File file;
 
     public FileBackedTasksManager(File file) {
         super();
@@ -125,38 +126,23 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             System.err.println("No such file to delete(), creating new tmp.csv");
         } catch (IOException e) {
             System.err.println(e);
-        } finally {
-            Map<Integer, Task> allTasks = new TreeMap<>();
-            allTasks.putAll(getCatalogOfSubTasks());
-            allTasks.putAll(getCatalogOfEpics());
-            allTasks.putAll(getCatalogOfTasks());
+        }
+        Map<Integer, Task> allTasks = new TreeMap<>();
+        allTasks.putAll(getCatalogOfSubTasks());
+        allTasks.putAll(getCatalogOfEpics());
+        allTasks.putAll(getCatalogOfTasks());
 
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(tmpFile, true))) {
-                for (Map.Entry<Integer, Task> task : allTasks.entrySet()) {
-                    bw.write(toString(task.getValue()) + "\n");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(tmpFile, true))) {
+            for (Map.Entry<Integer, Task> task : allTasks.entrySet()) {
+                bw.write(toString(task.getValue()) + "\n");
             }
-
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(tmpFile, true))) {
-                /*
-                    так как в задании явно указано, что historyToString() должен принимать объект HistoryManager
-                    мне придется создать объект этого класса, хотя на мой взгляд можно было просто работать
-                    с листом который возвращает getHistory()
-                 */
-                HistoryManager historyManager = new InMemoryHistoryManager();
-                for (Task t : getHistory()) {
-                    historyManager.add(t);
-                }
-                bw.write("\n" + historyToString(historyManager));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            bw.write("\n" + historyToString(history));
+        } catch (IOException e) {
+            throw new ManagerSaveException("Manager save exception");
         }
     }
 
-    public String toString(Task task) {
+    private String toString(Task task) {
         String toReturn = "";
         Types type = Types.valueOf(task
                 .getClass()
@@ -198,7 +184,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return toReturn;
     }
 
-    public Task fromString(String value) {
+    private Task fromString(String value) {
         Task task;
         String[] s = value.split(",");
          /*
@@ -210,8 +196,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 4 description
                 5 epicId - can be null
          */
-        String testString = s[3];
-        Status status = Status.valueOf(testString);
+        Status status = Status.valueOf(s[3]);
         switch (valueOf(s[1])) {
             case TASK:
                 task = new Task(s[2], s[4], status);
@@ -237,7 +222,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return task;
     }
 
-    static String historyToString(HistoryManager manager) {
+    private static String historyToString(HistoryManager manager) {
         String[] arrayStringId = new String[manager.getHistory().size()];
         List<Task> taskList = manager.getHistory();
         int counter = 0;
@@ -250,7 +235,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return String.join(",", arrayStringId);
     }
 
-    static List<Integer> historyFromString(String value) {
+    private static List<Integer> historyFromString(String value) {
         String[] arrayStringId = value.split(",");
         List<Integer> listOfTasksIds = new ArrayList<>();
 
