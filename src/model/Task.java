@@ -1,5 +1,6 @@
 package model;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -7,11 +8,15 @@ public class Task {
     private final String summary;
     private final String description;
     private Status status;
+    private long duration;
+    private ZonedDateTime startTime;
 
-    public Task(String summary, String description, Status status) {
+    public Task(String summary, String description, Status status, long duration, ZonedDateTime startTime) {
         this.summary = summary;
         this.description = description;
         this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public String getSummary() {
@@ -38,6 +43,22 @@ public class Task {
         this.status = status;
     }
 
+    public ZonedDateTime getEndTime() {
+        return startTime.plusMinutes(duration);
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public ZonedDateTime getStartTime() {
+        return startTime;
+    }
+
     @Override
     public String toString() {
         return getClass().getName() +
@@ -46,6 +67,8 @@ public class Task {
                 "summary='" + summary + '\'' +
                 ", description='" + description + '\'' +
                 ", status='" + status + '\'' +
+                ", duration=" + duration + '\'' +
+                ", startTime=" + startTime + '\'' +
                 '}';
     }
 

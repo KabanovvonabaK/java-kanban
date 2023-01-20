@@ -1,8 +1,8 @@
-1,EPIC,Epic2,DONE,Description epic2 from file,null
-2,EPIC,Epic3,DONE,Description epic3 from file,null
-3,TASK,Task1,NEW,Description task1,null
-4,SUBTASK,Sub Task2,DONE,Description sub task3,2
-5,SUBTASK,Sub Task5,DONE,Description sub task5,2
-6,TASK,Task created manually1,NEW,desc,null
+1,EPIC,Epic2,DONE,Description epic2 from file,null,null,null
+2,EPIC,Epic3,DONE,Description epic3 from file,null,null,null
+3,TASK,Task1,NEW,Description task1,null,30,2023-01-19T00:00+03:00[Europe/Moscow]
+4,SUBTASK,Sub Task2,DONE,Description sub task3,2,30,2023-01-19T00:30+03:00[Europe/Moscow]
+5,SUBTASK,Sub Task5,DONE,Description sub task5,2,30,2023-01-19T01:00+03:00[Europe/Moscow]
+6,TASK,Task created manually1,NEW,desc,null,30,2023-01-20T01:07:10.734004+03:00[Europe/Moscow]
 
 3,1,4,2,5,6

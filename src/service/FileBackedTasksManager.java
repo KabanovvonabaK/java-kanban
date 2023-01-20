@@ -6,6 +6,7 @@ import model.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static model.Types.*;
@@ -152,17 +153,19 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         switch (type) {
             // запятые внутри которых нет значения нужны для формирования одной общей модели хранения данных
             case TASK:
-                toReturn = String.format("%s,%s,%s,%s,%s,null",
+                toReturn = String.format("%s,%s,%s,%s,%s,null,%s,%s",
                         task.getId(),
                         TASK,
                         task.getSummary(),
                         task.getStatus(),
-                        task.getDescription());
+                        task.getDescription(),
+                        task.getDuration(),
+                        task.getStartTime());
                 break;
             case EPIC:
                 // приведение типов необходимо для доступа к уникальному методу getSubTasksIds()
                 Epic epic = (Epic) task;
-                toReturn = String.format("%s,%s,%s,%s,%s,null",
+                toReturn = String.format("%s,%s,%s,%s,%s,null,null,null",
                         epic.getId(),
                         EPIC,
                         epic.getSummary(),
@@ -172,13 +175,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             case SUBTASK:
                 // приведение типов необходимо для доступа к уникальному методу getEpicId()
                 SubTask subTask = (SubTask) task;
-                toReturn = String.format("%s,%s,%s,%s,%s,%s",
+                toReturn = String.format("%s,%s,%s,%s,%s,%s,%s,%s",
                         subTask.getId(),
                         SUBTASK,
                         subTask.getSummary(),
                         subTask.getStatus(),
                         subTask.getDescription(),
-                        subTask.getEpicId());
+                        subTask.getEpicId(),
+                        subTask.getDuration(),
+                        subTask.getStartTime());
                 break;
         }
         return toReturn;
@@ -195,11 +200,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 3 status
                 4 description
                 5 epicId - can be null
+                6 duration
+                7 startTime
          */
         Status status = Status.valueOf(s[3]);
         switch (valueOf(s[1])) {
             case TASK:
-                task = new Task(s[2], s[4], status);
+                task = new Task(s[2], s[4], status, Long.parseLong(s[6]), ZonedDateTime.parse(s[7]));
                 task.setId(Integer.parseInt(s[0]));
                 break;
             case EPIC:
@@ -213,7 +220,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 но так как subtask не может существовать без epicId я позволю себе в данной реализации
                 это не проверять
                  */
-                task = new SubTask(s[2], s[4], status, Integer.parseInt(s[5]));
+                task = new SubTask(s[2], s[4], status, Integer.parseInt(s[5]),
+                        Long.parseLong(s[6]), ZonedDateTime.parse(s[7]));
                 task.setId(Integer.parseInt(s[0]));
                 break;
             default:
@@ -318,7 +326,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         newEpic.addSubTaskId(2);
         newEpic.addSubTaskId(3);
 
-        assert Objects.equals("1,EPIC,First epic,NEW,Application testing,null",
+        assert Objects.equals("1,EPIC,First epic,NEW,Application testing,null,null,null",
                 manager.toString(newEpic)) :
                 "toString() can't convert Task to String properly";
 
@@ -326,7 +334,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         FileBackedTasksManager managerLoadFromFile = loadFromFile(
                 new File("resources" + File.separator + "dbForTests.csv"));
 
-        Task taskAnotherOne = new Task("Task created manually1", "desc", Status.NEW);
+        Task taskAnotherOne = new Task("Task created manually1", "desc", Status.NEW,
+                30, ZonedDateTime.now());
         managerLoadFromFile.createNewTask(taskAnotherOne);
         managerLoadFromFile.getTaskById(taskAnotherOne.getId());
 
@@ -339,7 +348,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         assert Objects.equals(managerLoadFromFile.getCatalogOfSubTasks().size(), 2)
                 : "list of SubTasks for wrong size";
 
-        Task taskToCompare = new Task("Task1", "Description task1", Status.NEW);
+        Task taskToCompare = new Task("Task1", "Description task1", Status.NEW,
+                30, ZonedDateTime.parse("2023-01-19T00:00:00.000000+03:00[Europe/Moscow]"));
         taskToCompare.setId(3);
         Epic epicToCompare1 = new Epic("Epic2", "Description epic2 from file", Status.DONE);
         epicToCompare1.setId(1);
@@ -349,7 +359,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         subTasksIdsFroEpicToCompare2.add(4);
         subTasksIdsFroEpicToCompare2.add(5);
         epicToCompare2.setSubTasksIds(subTasksIdsFroEpicToCompare2);
-        SubTask subTaskToCompare = new SubTask("Sub Task2", "Description sub task3", Status.DONE, 2);
+        SubTask subTaskToCompare = new SubTask("Sub Task2", "Description sub task3", Status.DONE,
+                2, 30, ZonedDateTime.parse("2023-01-19T00:30:00.000000+03:00[Europe/Moscow]"));
         subTaskToCompare.setId(4);
 
         Map<Integer, Epic> listOfEpics = managerLoadFromFile.getCatalogOfEpics();

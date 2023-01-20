@@ -5,9 +5,9 @@ import model.Status;
 import model.SubTask;
 import model.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     private int id = 0;
@@ -15,6 +15,10 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Epic> catalogOfEpics;
     private final HashMap<Integer, SubTask> catalogOfSubTasks;
     protected final HistoryManager history;
+
+    private final Comparator<Task> priorityComparator = Comparator.comparing(Task::getStartTime);
+
+    private final TreeSet<Task> tasksByPriority = new TreeSet<>(priorityComparator);
 
     public InMemoryTaskManager() {
         this.catalogOfTasks = new HashMap<>();
@@ -26,9 +30,14 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void createNewTask(Task task) {
         if (task != null) {
-            id++;
-            task.setId(id);
-            catalogOfTasks.put(id, task);
+            if (!checkTimeConflict(task)) {
+                id++;
+                task.setId(id);
+                catalogOfTasks.put(id, task);
+                tasksByPriority.add(task);
+            } else {
+                throw new RuntimeException("Impossible to add a task - time conflict");
+            }
         }
     }
 
@@ -44,11 +53,16 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void createNewSubTask(SubTask subTask) {
         if (subTask != null) {
-            id++;
-            subTask.setId(id);
-            catalogOfSubTasks.put(id, subTask);
-            linkEpicToSubTask(subTask);
-            updateEpicStatus(subTask.getEpicId());
+            if (!checkTimeConflict(subTask)) {
+                id++;
+                subTask.setId(id);
+                catalogOfSubTasks.put(id, subTask);
+                linkEpicToSubTask(subTask);
+                updateEpicStatusStartTimeAndDuration(subTask.getEpicId());
+                tasksByPriority.add(subTask);
+            } else {
+                throw new RuntimeException("Impossible to add a subTask - time conflict");
+            }
         }
     }
 
@@ -57,24 +71,28 @@ public class InMemoryTaskManager implements TaskManager {
         dropListOfTasks();
         dropListOfEpicsAndSubTasks();
         id = 0;
+        tasksByPriority.clear();
     }
 
     @Override
     public void dropListOfTasks() {
+        removeTasksFromPrioritizedList(catalogOfTasks.keySet());
         catalogOfTasks.clear();
     }
 
     @Override
     public void dropListOfEpicsAndSubTasks() {
         dropListOfSubTasks();
+        removeTasksFromPrioritizedList(catalogOfEpics.keySet());
         catalogOfEpics.clear();
     }
 
     @Override
     public void dropListOfSubTasks() {
+        removeTasksFromPrioritizedList(catalogOfSubTasks.keySet());
         catalogOfSubTasks.clear();
         catalogOfEpics.forEach((id, epic) -> epic.setSubTasksIds(new ArrayList<>()));
-        catalogOfEpics.forEach((id, epic) -> updateEpicStatus(epic.getId()));
+        catalogOfEpics.forEach((id, epic) -> updateEpicStatusStartTimeAndDuration(epic.getId()));
     }
 
     @Override
@@ -130,7 +148,19 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task task) {
         if (catalogOfTasks.containsKey(task.getId())) {
-            catalogOfTasks.replace(task.getId(), task);
+            if (!checkTimePeriod(task, catalogOfTasks.get(task.getId()))) {
+                if (!checkTimeConflict(task)) {
+                    catalogOfTasks.replace(task.getId(), task);
+                    removeTasksFromPrioritizedList(Collections.singleton(task.getId()));
+                    tasksByPriority.add(task);
+                } else {
+                    throw new RuntimeException("Impossible to update a task - time conflict");
+                }
+            } else {
+                catalogOfTasks.replace(task.getId(), task);
+                removeTasksFromPrioritizedList(Collections.singleton(task.getId()));
+                tasksByPriority.add(task);
+            }
         } else {
             throw new RuntimeException("Can't update task with id " + task.getId() + ", no task with such id.");
         }
@@ -142,7 +172,7 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setId(epic.getId());
             epic.setSubTasksIds(catalogOfEpics.get(epic.getId()).getSubTasksIds());
             catalogOfEpics.replace(epic.getId(), epic);
-            updateEpicStatus(epic.getId());
+            updateEpicStatusStartTimeAndDuration(epic.getId());
         } else {
             throw new RuntimeException("Can't update epic with id " + epic.getId() + ", no epic with such id.");
         }
@@ -151,18 +181,43 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubTask(SubTask subTask) {
         if (catalogOfSubTasks.containsKey(subTask.getId())) {
-            subTask.setId(subTask.getId());
-            if (catalogOfSubTasks.get(subTask.getId()).getEpicId() != subTask.getEpicId()) {
-                linkEpicToSubTask(subTask);
-                updateEpicStatus(subTask.getEpicId());
-                Epic epic = catalogOfEpics.get(subTask.getEpicId());
-                ArrayList<Integer> subTasksIds = epic.getSubTasksIds();
-                subTasksIds.remove((Integer) subTask.getId());
-                epic.setSubTasksIds(subTasksIds);
-                updateEpic(epic);
+            if (!checkTimePeriod(subTask, catalogOfSubTasks.get(subTask.getId()))) {
+                if (!checkTimeConflict(subTask)) {
+                    subTask.setId(subTask.getId());
+                    if (catalogOfSubTasks.get(subTask.getId()).getEpicId() != subTask.getEpicId()) {
+                        linkEpicToSubTask(subTask);
+                        updateEpicStatusStartTimeAndDuration(subTask.getEpicId());
+                        Epic epic = catalogOfEpics.get(subTask.getEpicId());
+                        ArrayList<Integer> subTasksIds = epic.getSubTasksIds();
+                        subTasksIds.remove((Integer) subTask.getId());
+                        epic.setSubTasksIds(subTasksIds);
+                        updateEpic(epic);
+                    }
+                    catalogOfSubTasks.replace(subTask.getId(), subTask);
+                    updateEpicStatusStartTimeAndDuration((subTask.getEpicId()));
+                    removeTasksFromPrioritizedList(Collections.singleton(subTask.getId()));
+                    tasksByPriority.add(subTask);
+                    updateEpicStatusStartTimeAndDuration(subTask.getEpicId());
+                } else {
+                    throw new RuntimeException("Impossible to update a subTask - time conflict");
+                }
+            } else {
+                subTask.setId(subTask.getId());
+                if (catalogOfSubTasks.get(subTask.getId()).getEpicId() != subTask.getEpicId()) {
+                    linkEpicToSubTask(subTask);
+                    updateEpicStatusStartTimeAndDuration(subTask.getEpicId());
+                    Epic epic = catalogOfEpics.get(subTask.getEpicId());
+                    ArrayList<Integer> subTasksIds = epic.getSubTasksIds();
+                    subTasksIds.remove((Integer) subTask.getId());
+                    epic.setSubTasksIds(subTasksIds);
+                    updateEpic(epic);
+                }
+                catalogOfSubTasks.replace(subTask.getId(), subTask);
+                updateEpicStatusStartTimeAndDuration((subTask.getEpicId()));
+                removeTasksFromPrioritizedList(Collections.singleton(subTask.getId()));
+                tasksByPriority.add(subTask);
+                updateEpicStatusStartTimeAndDuration(subTask.getEpicId());
             }
-            catalogOfSubTasks.replace(subTask.getId(), subTask);
-            updateEpicStatus(subTask.getEpicId());
         } else {
             throw new RuntimeException("Can't update subtask with id " + subTask.getId() + ", no subtask with such id.");
         }
@@ -172,6 +227,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeTaskById(int id) {
         if (catalogOfTasks.containsKey(id)) {
             catalogOfTasks.remove(id);
+            removeTasksFromPrioritizedList(Collections.singleton(id));
         } else {
             throw new RuntimeException("Task with id " + id + " don't exist.");
         }
@@ -203,7 +259,7 @@ public class InMemoryTaskManager implements TaskManager {
             subTasksIds.remove((Integer) id);
             epic.setSubTasksIds(subTasksIds);
             updateEpic(epic);
-            updateEpicStatus(subTask.getEpicId());
+            removeTasksFromPrioritizedList(Collections.singleton(id));
         } else {
             throw new RuntimeException("SubTask with id " + id + " don't exist.");
         }
@@ -215,7 +271,7 @@ public class InMemoryTaskManager implements TaskManager {
             epic.addSubTaskId(subTask.getId());
             catalogOfEpics.replace(subTask.getEpicId(), epic);
         } else {
-            throw new RuntimeException("Can't find epic with id " + id);
+            throw new RuntimeException("Can't find epic with id " + subTask.getEpicId());
         }
     }
 
@@ -244,5 +300,107 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             throw new RuntimeException("Can't update status for epic with id " + id + ", can't find epic with such id");
         }
+    }
+
+    private void updateEpicDuration(int id) {
+        if (catalogOfEpics.containsKey(id)) {
+            Epic epic = catalogOfEpics.get(id);
+            ArrayList<Integer> subTaskIds = epic.getSubTasksIds();
+            Duration epicDuration = Duration.ZERO;
+
+            if (subTaskIds == null) {
+                throw new RuntimeException("calculateEpicDuration() called for epic with subTaskIds == null");
+            } else if (subTaskIds.size() == 1) {
+                epicDuration = epicDuration.plusMinutes(catalogOfSubTasks.get(subTaskIds.get(0)).getDuration());
+            } else {
+                for (Integer subTaskId : subTaskIds) {
+                    epicDuration = epicDuration.plusMinutes(catalogOfSubTasks.get(subTaskId).getDuration());
+                }
+            }
+            epic.setDuration(epicDuration.toMinutes());
+            catalogOfEpics.replace(id, epic);
+        } else {
+            throw new RuntimeException("Can't calculate duration for epic with id " + id +
+                    ", can't find epic with such id");
+        }
+    }
+
+    private void updateEpicStartTime(int id) {
+        if (catalogOfEpics.containsKey(id)) {
+            Epic epic = catalogOfEpics.get(id);
+            ArrayList<Integer> subTaskIds = epic.getSubTasksIds();
+
+            if (subTaskIds == null) {
+                throw new RuntimeException("findEpicStartTime() called for epic with subTaskIds == null");
+            } else if (subTaskIds.size() == 0) {
+                // возможно не лучшее решение
+                epic.setStartTime(null);
+            } else if (subTaskIds.size() == 1) {
+                epic.setStartTime(catalogOfSubTasks.get(subTaskIds.get(0)).getStartTime());
+            } else {
+                ZonedDateTime earliestStart = catalogOfSubTasks.get(subTaskIds.get(0)).getStartTime();
+                for (Integer subTaskId : subTaskIds) {
+                    if (earliestStart.isAfter(catalogOfSubTasks.get(subTaskId).getStartTime())) {
+                        earliestStart = catalogOfSubTasks.get(subTaskId).getStartTime();
+                    }
+                }
+                epic.setStartTime(earliestStart);
+                catalogOfEpics.replace(id, epic);
+            }
+        } else {
+            throw new RuntimeException("Can't find startTime for epic with id " + id +
+                    ", can't find epic with such id");
+        }
+    }
+
+    private void updateEpicStatusStartTimeAndDuration(int id) {
+        updateEpicStatus(id);
+        updateEpicDuration(id);
+        updateEpicStartTime(id);
+    }
+
+    public TreeSet<Task> getPrioritizedTasks() {
+        return tasksByPriority;
+    }
+
+    private boolean checkTimeConflict(Task task) {
+        ZonedDateTime taskStartTime = task.getStartTime();
+        ZonedDateTime taskEndTime = task.getEndTime();
+        boolean isTimeConflict = false;
+
+        if (getPrioritizedTasks().size() > 0) {
+            for (Task prioritizedTask : getPrioritizedTasks()) {
+                ZonedDateTime prioritizedTaskStartTime = prioritizedTask.getStartTime();
+                ZonedDateTime prioritizedTaskEndTime = prioritizedTask.getEndTime();
+
+                if (taskStartTime.equals(prioritizedTaskStartTime) ||
+                        (taskStartTime.isAfter(prioritizedTaskStartTime)
+                                && taskStartTime.isBefore(prioritizedTaskEndTime))) {
+                    isTimeConflict = true;
+                } else if (taskEndTime.equals(prioritizedTaskEndTime) ||
+                        (taskEndTime.isAfter(prioritizedTaskStartTime) &&
+                                taskEndTime.isBefore(prioritizedTaskEndTime))) {
+                    isTimeConflict = true;
+                }
+            }
+        }
+        return isTimeConflict;
+    }
+
+    private void removeTasksFromPrioritizedList(Set<Integer> ids) {
+        Iterator<Task> iterator = tasksByPriority.iterator();
+        while (iterator.hasNext()) {
+            Task task = iterator.next();
+            for (Integer id : ids) {
+                if (task.getId() == id) {
+                    iterator.remove();
+                }
+            }
+        }
+    }
+
+    private boolean checkTimePeriod(Task t1, Task t2) {
+        return t1.getStartTime().equals(t2.getStartTime()) &&
+                t1.getEndTime().equals(t2.getEndTime());
     }
 }

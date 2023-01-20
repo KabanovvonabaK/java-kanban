@@ -1,12 +1,13 @@
 package model;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 public class SubTask extends Task {
     private final int epicId;
 
-    public SubTask(String summary, String description, Status status, int epicId) {
-        super(summary, description, status);
+    public SubTask(String summary, String description, Status status, int epicId, long duration, ZonedDateTime startTime) {
+        super(summary, description, status, duration, startTime);
         this.epicId = epicId;
     }
 
