@@ -8,6 +8,7 @@ import model.Task;
 import org.junit.jupiter.api.*;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -276,6 +277,21 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 () -> assertEquals(0, taskManager.getCatalogOfEpics().get(2).getSubTasksIds().size()),
                 () -> assertEquals(Status.NEW, taskManager.getCatalogOfEpics().get(2).getStatus())
         );
+    }
+
+    @Test
+    void dropEmptyCatalogOfTasksTest() {
+        taskManager.dropListOfTasks();
+    }
+
+    @Test
+    void dropEmptyCatalogOfEpicsAndSubTasksTest() {
+        taskManager.dropListOfEpicsAndSubTasks();
+    }
+
+    @Test
+    void dropEmptyCatalogOfSubTasksTest() {
+        taskManager.dropListOfSubTasks();
     }
 
     @Test
@@ -851,7 +867,6 @@ abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createNewSubTask(subTaskToAddNumberTwo);
 
         assertAll(
-                () -> assertEquals(1, taskManager.getCatalogOfEpics().size()),
                 () -> assertEquals(2, taskManager.getCatalogOfSubTasks().size()),
                 () -> assertEquals(Status.IN_PROGRESS, taskManager.getCatalogOfEpics().get(1).getStatus())
         );
@@ -1025,5 +1040,217 @@ abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.updateSubTask(subTaskToAddNumberTwoUpdate);
 
         assertEquals(Status.IN_PROGRESS, taskManager.getCatalogOfEpics().get(1).getStatus());
+    }
+
+    @Test
+    void getPrioritizedTasksEmptyTest() {
+        assertTrue(taskManager.getPrioritizedTasks().isEmpty());
+    }
+
+    @Test
+    void getPrioritizedTasksTest() {
+        Task taskOne = new Task("Summary",
+                "Description",
+                Status.NEW,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME);
+        Task taskTwo = new Task("Summary",
+                "Description",
+                Status.NEW,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME.minusMinutes(TASK_DEFAULT_DURATION));
+        Task taskThree = new Task("Summary",
+                "Description",
+                Status.NEW,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 2));
+
+        taskManager.createNewTask(taskOne);
+        taskManager.createNewTask(taskTwo);
+        taskManager.createNewTask(taskThree);
+
+        ArrayList<Task> idsFromPrioritizedTasksTreeSet = new ArrayList<>(taskManager.getPrioritizedTasks());
+
+        assertAll(
+                () -> assertEquals(3, taskManager.getPrioritizedTasks().size()),
+                () -> assertEquals(2, idsFromPrioritizedTasksTreeSet.get(0).getId()),
+                () -> assertEquals(1, idsFromPrioritizedTasksTreeSet.get(1).getId()),
+                () -> assertEquals(3, idsFromPrioritizedTasksTreeSet.get(2).getId())
+        );
+    }
+
+    @Test
+    void getPrioritizedTasksUpdateStartTimeTest() {
+        Task taskOne = new Task("Summary",
+                "Description",
+                Status.NEW,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME);
+        Task taskTwo = new Task("Summary",
+                "Description",
+                Status.NEW,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME.minusMinutes(TASK_DEFAULT_DURATION));
+        Task taskThree = new Task("Summary",
+                "Description",
+                Status.NEW,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 2));
+
+        taskManager.createNewTask(taskOne);
+        taskManager.createNewTask(taskTwo);
+        taskManager.createNewTask(taskThree);
+
+        Task taskFour = new Task("Summary",
+                "Description",
+                Status.NEW,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME.minusMinutes(TASK_DEFAULT_DURATION * 3));
+        taskFour.setId(3);
+
+        taskManager.updateTask(taskFour);
+
+        ArrayList<Task> idsFromPrioritizedTasksTreeSet = new ArrayList<>(taskManager.getPrioritizedTasks());
+
+        assertAll(
+                () -> assertEquals(3, taskManager.getPrioritizedTasks().size()),
+                () -> assertEquals(3, idsFromPrioritizedTasksTreeSet.get(0).getId()),
+                () -> assertEquals(2, idsFromPrioritizedTasksTreeSet.get(1).getId()),
+                () -> assertEquals(1, idsFromPrioritizedTasksTreeSet.get(2).getId())
+        );
+    }
+
+    @Test
+    void getPrioritizedTasksRemoveTaskTest() {
+        Task taskOne = new Task("Summary",
+                "Description",
+                Status.NEW,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME);
+        Task taskTwo = new Task("Summary",
+                "Description",
+                Status.NEW,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME.minusMinutes(TASK_DEFAULT_DURATION));
+        Task taskThree = new Task("Summary",
+                "Description",
+                Status.NEW,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 2));
+
+        taskManager.createNewTask(taskOne);
+        taskManager.createNewTask(taskTwo);
+        taskManager.createNewTask(taskThree);
+
+        taskManager.removeTaskById(2);
+
+        ArrayList<Task> idsFromPrioritizedTasksTreeSet = new ArrayList<>(taskManager.getPrioritizedTasks());
+
+        assertAll(
+                () -> assertEquals(2, taskManager.getPrioritizedTasks().size()),
+                () -> assertEquals(1, idsFromPrioritizedTasksTreeSet.get(0).getId()),
+                () -> assertEquals(3, idsFromPrioritizedTasksTreeSet.get(1).getId())
+        );
+    }
+
+    @Test
+    void checkTaskTimeDurationTest() {
+        Task task = new Task("Summary",
+                "Description",
+                Status.NEW,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME);
+        taskManager.createNewTask(task);
+
+        assertEquals(ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION),
+                taskManager.getCatalogOfTasks().get(1).getEndTime());
+    }
+
+    @Test
+    void checkEpicTimeDurationStartTimeAndEndTimeTest() {
+        Epic epicToAdd = new Epic("Summary",
+                "Description",
+                Status.IN_PROGRESS);
+        SubTask subTaskToAdd = new SubTask("Summary",
+                "First subTask description",
+                Status.IN_PROGRESS,
+                1,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME);
+        SubTask subTaskToAddNumberTwo = new SubTask("Summary",
+                "Second subTask description",
+                Status.IN_PROGRESS,
+                1,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 3));
+
+        taskManager.createNewEpic(epicToAdd);
+        taskManager.createNewSubTask(subTaskToAdd);
+        taskManager.createNewSubTask(subTaskToAddNumberTwo);
+
+        assertAll(
+                () -> assertEquals(40, taskManager.getCatalogOfEpics().get(1).getDuration()),
+                () -> assertEquals(ZONED_DATE_TIME, taskManager.getCatalogOfEpics().get(1).getStartTime()),
+                () -> assertEquals(ZONED_DATE_TIME.plusMinutes(40),
+                        taskManager.getCatalogOfEpics().get(1).getEndTime())
+        );
+    }
+
+    @Test
+    void checkEpicTimeDurationUpdateSunTaskTest() {
+        Epic epicToAdd = new Epic("Summary",
+                "Description",
+                Status.IN_PROGRESS);
+        SubTask subTaskToAdd = new SubTask("Summary",
+                "First subTask description",
+                Status.IN_PROGRESS,
+                1,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME);
+        SubTask subTaskToAddNumberTwo = new SubTask("Summary",
+                "Second subTask description",
+                Status.IN_PROGRESS,
+                1,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 2));
+
+        taskManager.createNewEpic(epicToAdd);
+        taskManager.createNewSubTask(subTaskToAdd);
+        taskManager.createNewSubTask(subTaskToAddNumberTwo);
+
+        SubTask subTaskToUpdate = new SubTask("Summary",
+                "Second subTask description",
+                Status.IN_PROGRESS,
+                1,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME.minusMinutes(50));
+        subTaskToUpdate.setId(3);
+
+        taskManager.updateSubTask(subTaskToUpdate);
+
+        assertAll(
+                () -> assertEquals(60, taskManager.getCatalogOfEpics().get(1).getDuration()),
+                () -> assertEquals(ZONED_DATE_TIME.minusMinutes(50), taskManager.getCatalogOfEpics().get(1).getStartTime()),
+                () -> assertEquals(ZONED_DATE_TIME.plusMinutes(10),
+                        taskManager.getCatalogOfEpics().get(1).getEndTime())
+        );
+    }
+
+    @Test
+    void checkSubTaskTimeDurationTest() {
+        Epic epicToAdd = new Epic("Summary",
+                "Description",
+                Status.IN_PROGRESS);
+        SubTask subTask = new SubTask("Summary",
+                "Description",
+                Status.NEW,
+                1,
+                TASK_DEFAULT_DURATION,
+                ZONED_DATE_TIME);
+        taskManager.createNewEpic(epicToAdd);
+        taskManager.createNewSubTask(subTask);
+
+        assertEquals(ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION),
+                taskManager.getCatalogOfSubTasks().get(2).getEndTime());
     }
 }

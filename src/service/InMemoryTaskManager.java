@@ -310,13 +310,23 @@ public class InMemoryTaskManager implements TaskManager {
 
             if (subTaskIds == null) {
                 throw new RuntimeException("calculateEpicDuration() called for epic with subTaskIds == null");
+            } else if (subTaskIds.size() == 0) {
+
             } else if (subTaskIds.size() == 1) {
                 epicDuration = epicDuration.plusMinutes(catalogOfSubTasks.get(subTaskIds.get(0)).getDuration());
             } else {
+                ZonedDateTime start = catalogOfSubTasks.get(subTaskIds.get(0)).getStartTime();
+                ZonedDateTime end = catalogOfSubTasks.get(subTaskIds.get(0)).getEndTime();
                 for (Integer subTaskId : subTaskIds) {
-                    epicDuration = epicDuration.plusMinutes(catalogOfSubTasks.get(subTaskId).getDuration());
+                    if (catalogOfSubTasks.get(subTaskId).getStartTime().isBefore(start)) {
+                        start = catalogOfSubTasks.get(subTaskId).getStartTime();
+                    } else if (catalogOfSubTasks.get(subTaskId).getEndTime().isAfter(end)) {
+                        end = catalogOfSubTasks.get(subTaskId).getEndTime();
+                    }
                 }
+                epicDuration = Duration.between(start, end);
             }
+
             epic.setDuration(epicDuration.toMinutes());
             catalogOfEpics.replace(id, epic);
         } else {

@@ -30,6 +30,16 @@ public class Epic extends Task {
         this.startTime = startTime;
     }
 
+    @Override
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
+    @Override
+    public long getDuration() {
+        return duration;
+    }
+
     public ZonedDateTime getStartTime() {
         return startTime;
     }
@@ -37,7 +47,7 @@ public class Epic extends Task {
     @Override
     public ZonedDateTime getEndTime() {
         if (startTime != null) {
-            return super.getEndTime();
+            return startTime.plusMinutes(duration);
         } else {
             throw new RuntimeException("End time is null for epic with id " + getId());
         }

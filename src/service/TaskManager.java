@@ -6,6 +6,7 @@ import model.Task;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeSet;
 
 public interface TaskManager {
     void createNewTask(Task task);
@@ -47,4 +48,6 @@ public interface TaskManager {
     void removeEpicById(int id);
 
     void removeSubTaskById(int id);
+
+    TreeSet<Task> getPrioritizedTasks();
 }
