@@ -2,10 +2,12 @@ import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
+import service.HttpTaskManager;
 import service.Managers;
 import service.TaskManager;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -51,7 +53,7 @@ public class Main {
         HashMap<Integer, Task> recreatedListOfTasks = new HashMap<>();
         Task task = new Task("Summary of simple task",
                 "Application testing", Status.NEW, 30,
-                ZonedDateTime.parse("2023-01-19T00:00:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T00:00"));
         task.setId(6);
         recreatedListOfTasks.put(6, task);
         assert Objects.equals(inMemoryTaskManagerGetList.getCatalogOfTasks().get(6).hashCode(), recreatedListOfTasks.get(6).hashCode())
@@ -79,15 +81,15 @@ public class Main {
         HashMap<Integer, SubTask> recreatedListOfSubTasks = new HashMap<>();
         SubTask subTask2 = new SubTask("Summary for first subtask of first epic",
                 "Application testing", Status.NEW, 1, 30,
-                ZonedDateTime.parse("2023-01-19T00:30:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T00:30"));
         subTask2.setId(2);
         SubTask subTask3 = new SubTask("Summary for second subtask of first epic",
                 "Application testing", Status.NEW, 1, 30,
-                ZonedDateTime.parse("2023-01-19T01:00:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T01:00"));
         subTask3.setId(3);
         SubTask subTask5 = new SubTask("Summary for first subtask of second epic",
                 "Application testing", Status.NEW, 4, 30,
-                ZonedDateTime.parse("2023-01-19T01:30:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T01:30"));
         subTask5.setId(5);
         recreatedListOfSubTasks.put(2, subTask2);
         recreatedListOfSubTasks.put(3, subTask3);
@@ -105,7 +107,7 @@ public class Main {
         // getTask, getEpic, getSubTask test section
         TaskManager inMemoryTaskManagerGet = getNewManager();
         Task task1 = new Task("Summary of simple task", "Application testing", Status.NEW,
-                30, ZonedDateTime.parse("2023-01-19T02:00:00.000000+03:00[Europe/Moscow]"));
+                30, LocalDateTime.parse("2023-01-19T02:00"));
         task1.setId(6);
         assert Objects.equals(inMemoryTaskManagerGet.getTaskById(6).hashCode(), task1.hashCode())
                 : "Returned task not the same as original";
@@ -119,7 +121,7 @@ public class Main {
 
         SubTask subTask = new SubTask("Summary for first subtask of first epic",
                 "Application testing", Status.NEW, 1, 30,
-                ZonedDateTime.parse("2023-01-19T02:30:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T02:30"));
         subTask.setId(2);
         assert Objects.equals(inMemoryTaskManagerGet.getSubTaskById(2).hashCode(), subTask.hashCode())
                 : "Returned subtask not the same as original";
@@ -127,7 +129,7 @@ public class Main {
         // 'Update' test section
         TaskManager inMemoryTaskManagerUpdate = getNewManager();
         Task newTask = new Task("Updated summary of simple task", "Application testing",
-                Status.NEW, 30, ZonedDateTime.parse("2023-01-19T03:00:00.000000+03:00[Europe/Moscow]"));
+                Status.NEW, 30, LocalDateTime.parse("2023-01-19T03:00"));
         newTask.setId(6);
         inMemoryTaskManagerUpdate.updateTask(newTask);
         assert Objects.equals(inMemoryTaskManagerUpdate.getTaskById(newTask.getId()).hashCode(), newTask.hashCode())
@@ -146,7 +148,7 @@ public class Main {
 
         SubTask subTask1 = new SubTask("Updated summary for first subtask of first epic",
                 "Application testing", Status.DONE, 1, 30,
-                ZonedDateTime.parse("2023-01-19T03:30:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T03:30"));
         subTask1.setId(2);
         int newSubTaskHashCode = subTask1.hashCode();
         inMemoryTaskManagerUpdate.updateSubTask(subTask1);
@@ -199,7 +201,7 @@ public class Main {
 
         SubTask subTask4 = new SubTask("Summary for first subtask of second epic",
                 "Application testing", Status.IN_PROGRESS, 4, 30,
-                ZonedDateTime.parse("2023-01-19T04:00:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T04:00"));
         subTask4.setId(5);
         inMemoryTaskManagerRemove.updateSubTask(subTask4);
         inMemoryTaskManagerRemove.removeSubTaskById(5);
@@ -210,34 +212,34 @@ public class Main {
                 "status if such epic didn't change from IN_PROGRESS to NEW";
 
         // History test section
-        TaskManager inMemoryTaskManagerHistory = Managers.getDefault();
+        TaskManager inMemoryTaskManagerHistory = Managers.getInMemoryTaskManager();
 
         Epic epicFirst = new Epic("Summary of first epic", "Application testing", Status.NEW);
         SubTask subTaskFirstForFirstEpic = new SubTask("Summary for first subtask of first epic",
                 "Application testing", Status.NEW, 1, 30,
-                ZonedDateTime.parse("2023-01-19T06:30:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T06:30"));
         SubTask subTaskSecondForFirstEpic = new SubTask("Summary for second subtask of first epic",
                 "Application testing", Status.NEW, 1, 30,
-                ZonedDateTime.parse("2023-01-19T05:00:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T05:00"));
         Epic epicSecond = new Epic("Summary of second epic", "Application testing", Status.NEW);
         SubTask subTaskFirstForSecondEpic = new SubTask("Summary for first subtask of second epic",
                 "Application testing", Status.NEW, 4, 30,
-                ZonedDateTime.parse("2023-01-19T05:30:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T05:30"));
         Task task2 = new Task("Summary of simple task", "Application testing", Status.NEW,
-                11, ZonedDateTime.parse("2023-01-19T04:30:00.000000+03:00[Europe/Moscow]"));
+                11, LocalDateTime.parse("2023-01-19T04:30"));
         Epic epicFirst1 = new Epic("Summary of first epic", "Application testing", Status.NEW);
         SubTask subTaskFirstForFirstEpic1 = new SubTask("Summary for first subtask of first epic",
                 "Application testing", Status.NEW, 1, 30,
-                ZonedDateTime.parse("2023-01-19T07:00:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T07:00"));
         SubTask subTaskSecondForFirstEpic1 = new SubTask("Summary for second subtask of first epic",
                 "Application testing", Status.NEW, 1, 11,
-                ZonedDateTime.parse("2023-01-19T07:30:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T07:30"));
         Epic epicSecond1 = new Epic("Summary of second epic", "Application testing", Status.NEW);
         SubTask subTaskFirstForSecondEpic1 = new SubTask("Summary for first subtask of second epic",
                 "Application testing", Status.NEW, 4, 11,
-                ZonedDateTime.parse("2023-01-19T08:00:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T08:00"));
         Task task3 = new Task("Summary of simple task", "Application testing", Status.NEW,
-                30, ZonedDateTime.parse("2023-01-19T08:30:00.000000+03:00[Europe/Moscow]"));
+                30, LocalDateTime.parse("2023-01-19T08:30"));
 
         inMemoryTaskManagerHistory.createNewEpic(epicFirst);
         inMemoryTaskManagerHistory.createNewSubTask(subTaskFirstForFirstEpic);
@@ -302,21 +304,21 @@ public class Main {
     }
 
     private static TaskManager getNewManager() {
-        TaskManager inMemoryTaskManager = Managers.getDefault();
+        TaskManager inMemoryTaskManager = Managers.getInMemoryTaskManager();
 
         Epic epicFirst = new Epic("Summary of first epic", "Application testing", Status.NEW);
         SubTask subTaskFirstForFirstEpic = new SubTask("Summary for first subtask of first epic",
                 "Application testing", Status.NEW, 1, 30,
-                ZonedDateTime.parse("2023-01-19T09:00:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T09:00"));
         SubTask subTaskSecondForFirstEpic = new SubTask("Summary for second subtask of first epic",
                 "Application testing", Status.NEW, 1, 30,
-                ZonedDateTime.parse("2023-01-19T08:30:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T08:30"));
         Epic epicSecond = new Epic("Summary of second epic", "Application testing", Status.NEW);
         SubTask subTaskFirstForSecondEpic = new SubTask("Summary for first subtask of second epic",
                 "Application testing", Status.NEW, 4, 30,
-                ZonedDateTime.parse("2023-01-19T10:00:00.000000+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-19T10:00"));
         Task task = new Task("Summary of simple task", "Application testing", Status.NEW,
-                30, ZonedDateTime.parse("2023-01-19T10:30:00.000000+03:00[Europe/Moscow]"));
+                30, LocalDateTime.parse("2023-01-19T10:30"));
 
         inMemoryTaskManager.createNewEpic(epicFirst);
         inMemoryTaskManager.createNewSubTask(subTaskFirstForFirstEpic);

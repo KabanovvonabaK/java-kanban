@@ -5,7 +5,7 @@ import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +25,7 @@ abstract class HistoryManagerTest<T extends HistoryManager> {
                 "Description",
                 Status.NEW,
                 10,
-                ZonedDateTime.now());
+                LocalDateTime.now());
         taskToAdd.setId(1);
 
         historyManager.add(taskToAdd);
@@ -39,19 +39,19 @@ abstract class HistoryManagerTest<T extends HistoryManager> {
                 "Description",
                 Status.NEW,
                 10,
-                ZonedDateTime.now());
+                LocalDateTime.now());
         taskToAddOne.setId(1);
         Task taskToAddTwo = new Task("Summary",
                 "Description",
                 Status.NEW,
                 10,
-                ZonedDateTime.now().plusMinutes(10));
+                LocalDateTime.now().plusMinutes(10));
         taskToAddTwo.setId(2);
         Task taskToAddThree = new Task("Summary",
                 "Description",
                 Status.NEW,
                 10,
-                ZonedDateTime.now().plusMinutes(10));
+                LocalDateTime.now().plusMinutes(10));
         taskToAddThree.setId(3);
 
         historyManager.add(taskToAddOne);
@@ -67,19 +67,19 @@ abstract class HistoryManagerTest<T extends HistoryManager> {
                 "Description",
                 Status.NEW,
                 10,
-                ZonedDateTime.parse("2023-01-20T23:51:11.580965+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-20T23:51"));
         taskToAddOne.setId(1);
         Task taskToAddTwo = new Task("Summary",
                 "Description",
                 Status.NEW,
                 10,
-                ZonedDateTime.parse("2023-01-20T23:51:11.580992+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-20T23:51"));
         taskToAddTwo.setId(2);
         Task taskToAddThree = new Task("Summary",
                 "Description",
                 Status.NEW,
                 10,
-                ZonedDateTime.parse("2023-01-20T23:41:11.580937+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-20T23:41"));
         taskToAddThree.setId(3);
 
         historyManager.add(taskToAddOne);
@@ -90,11 +90,11 @@ abstract class HistoryManagerTest<T extends HistoryManager> {
         System.out.println(historyManager.getHistory());
         assertEquals(3, historyManager.getHistory().size());
         assertEquals("[model.Task{id=2'summary='Summary', description='Description', status='NEW', " +
-                "duration=10', startTime=2023-01-20T23:51:11.580992+03:00[Europe/Moscow]'}, model.Task{id=3'" +
+                "duration=10', startTime=2023-01-20T23:51'}, model.Task{id=3'" +
                 "summary='Summary', description='Description', status='NEW', duration=10', " +
-                "startTime=2023-01-20T23:41:11.580937+03:00[Europe/Moscow]'}, model.Task{id=1'summary='Summary', " +
+                "startTime=2023-01-20T23:41'}, model.Task{id=1'summary='Summary', " +
                 "description='Description', status='NEW', duration=10', " +
-                "startTime=2023-01-20T23:51:11.580965+03:00[Europe/Moscow]'}]", historyManager.getHistory().toString());
+                "startTime=2023-01-20T23:51'}]", historyManager.getHistory().toString());
     }
 
     @Test
@@ -103,19 +103,19 @@ abstract class HistoryManagerTest<T extends HistoryManager> {
                 "Description",
                 Status.NEW,
                 10,
-                ZonedDateTime.parse("2023-01-20T23:51:11.580965+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-20T23:51"));
         taskToAddOne.setId(1);
         Task taskToAddTwo = new Task("Summary",
                 "Description",
                 Status.NEW,
                 10,
-                ZonedDateTime.parse("2023-01-20T23:51:11.580992+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-20T23:51"));
         taskToAddTwo.setId(2);
         Task taskToAddThree = new Task("Summary",
                 "Description",
                 Status.NEW,
                 10,
-                ZonedDateTime.parse("2023-01-20T23:41:11.580937+03:00[Europe/Moscow]"));
+                LocalDateTime.parse("2023-01-20T23:41"));
         taskToAddThree.setId(3);
 
         historyManager.add(taskToAddOne);

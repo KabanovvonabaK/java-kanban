@@ -1,5 +1,6 @@
 package model;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
@@ -9,9 +10,9 @@ public class Task {
     private final String description;
     private Status status;
     private long duration;
-    private ZonedDateTime startTime;
+    private final LocalDateTime startTime;
 
-    public Task(String summary, String description, Status status, long duration, ZonedDateTime startTime) {
+    public Task(String summary, String description, Status status, long duration, LocalDateTime startTime) {
         this.summary = summary;
         this.description = description;
         this.status = status;
@@ -43,7 +44,7 @@ public class Task {
         this.status = status;
     }
 
-    public ZonedDateTime getEndTime() {
+    public LocalDateTime getEndTime() {
         return startTime.plusMinutes(duration);
     }
 
@@ -55,7 +56,7 @@ public class Task {
         return duration;
     }
 
-    public ZonedDateTime getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 

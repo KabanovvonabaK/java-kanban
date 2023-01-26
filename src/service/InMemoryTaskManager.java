@@ -6,6 +6,7 @@ import model.SubTask;
 import model.Task;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -315,8 +316,8 @@ public class InMemoryTaskManager implements TaskManager {
             } else if (subTaskIds.size() == 1) {
                 epicDuration = epicDuration.plusMinutes(catalogOfSubTasks.get(subTaskIds.get(0)).getDuration());
             } else {
-                ZonedDateTime start = catalogOfSubTasks.get(subTaskIds.get(0)).getStartTime();
-                ZonedDateTime end = catalogOfSubTasks.get(subTaskIds.get(0)).getEndTime();
+                LocalDateTime start = catalogOfSubTasks.get(subTaskIds.get(0)).getStartTime();
+                LocalDateTime end = catalogOfSubTasks.get(subTaskIds.get(0)).getEndTime();
                 for (Integer subTaskId : subTaskIds) {
                     if (catalogOfSubTasks.get(subTaskId).getStartTime().isBefore(start)) {
                         start = catalogOfSubTasks.get(subTaskId).getStartTime();
@@ -344,17 +345,17 @@ public class InMemoryTaskManager implements TaskManager {
                 throw new RuntimeException("findEpicStartTime() called for epic with subTaskIds == null");
             } else if (subTaskIds.size() == 0) {
                 // возможно не лучшее решение
-                epic.setStartTime(null);
+                epic.setStartTimeEpic(null);
             } else if (subTaskIds.size() == 1) {
-                epic.setStartTime(catalogOfSubTasks.get(subTaskIds.get(0)).getStartTime());
+                epic.setStartTimeEpic(catalogOfSubTasks.get(subTaskIds.get(0)).getStartTime());
             } else {
-                ZonedDateTime earliestStart = catalogOfSubTasks.get(subTaskIds.get(0)).getStartTime();
+                LocalDateTime earliestStart = catalogOfSubTasks.get(subTaskIds.get(0)).getStartTime();
                 for (Integer subTaskId : subTaskIds) {
                     if (earliestStart.isAfter(catalogOfSubTasks.get(subTaskId).getStartTime())) {
                         earliestStart = catalogOfSubTasks.get(subTaskId).getStartTime();
                     }
                 }
-                epic.setStartTime(earliestStart);
+                epic.setStartTimeEpic(earliestStart);
                 catalogOfEpics.replace(id, epic);
             }
         } else {
@@ -374,14 +375,14 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private boolean checkTimeConflict(Task task) {
-        ZonedDateTime taskStartTime = task.getStartTime();
-        ZonedDateTime taskEndTime = task.getEndTime();
+        LocalDateTime taskStartTime = task.getStartTime();
+        LocalDateTime taskEndTime = task.getEndTime();
         boolean isTimeConflict = false;
 
         if (getPrioritizedTasks().size() > 0) {
             for (Task prioritizedTask : getPrioritizedTasks()) {
-                ZonedDateTime prioritizedTaskStartTime = prioritizedTask.getStartTime();
-                ZonedDateTime prioritizedTaskEndTime = prioritizedTask.getEndTime();
+                LocalDateTime prioritizedTaskStartTime = prioritizedTask.getStartTime();
+                LocalDateTime prioritizedTaskEndTime = prioritizedTask.getEndTime();
 
                 if (taskStartTime.equals(prioritizedTaskStartTime) ||
                         (taskStartTime.isAfter(prioritizedTaskStartTime)

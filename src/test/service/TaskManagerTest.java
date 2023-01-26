@@ -7,6 +7,7 @@ import model.SubTask;
 import model.Task;
 import org.junit.jupiter.api.*;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 abstract class TaskManagerTest<T extends TaskManager> {
 
     public T taskManager;
-    public static final ZonedDateTime ZONED_DATE_TIME = ZonedDateTime.now();
+    public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.now();
     public static final int TASK_DEFAULT_DURATION = 10;
 
     abstract T createTaskManager();
@@ -27,8 +28,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @AfterEach
-    public void afterAll() {
-        ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION);
+    public void afterEach() {
+        LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION);
     }
 
     @Test
@@ -45,7 +46,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
 
         taskManager.createNewTask(taskToAdd);
         Task addedTask = taskManager.getCatalogOfTasks().get(1);
@@ -57,7 +58,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 () -> assertEquals(taskToAdd.getDescription(), addedTask.getDescription()),
                 () -> assertEquals(Status.NEW, addedTask.getStatus()),
                 () -> assertEquals(TASK_DEFAULT_DURATION, addedTask.getDuration()),
-                () -> assertEquals(ZONED_DATE_TIME, addedTask.getStartTime())
+                () -> assertEquals(LOCAL_DATE_TIME, addedTask.getStartTime())
         );
     }
 
@@ -67,7 +68,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         taskManager.createNewTask(taskToAdd);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -118,7 +119,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
 
         taskManager.createNewEpic(epic);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -146,7 +147,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
 
         taskManager.createNewEpic(epic);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -163,7 +164,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         Epic epic = new Epic("Summary",
                 "Description",
                 Status.NEW);
@@ -172,7 +173,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 2,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewTask(taskToAdd);
         taskManager.createNewEpic(epic);
@@ -193,7 +194,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         Epic epic = new Epic("Summary",
                 "Description",
                 Status.NEW);
@@ -202,7 +203,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 2,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewTask(taskToAdd);
         taskManager.createNewEpic(epic);
@@ -223,7 +224,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         Epic epic = new Epic("Summary",
                 "Description",
                 Status.NEW);
@@ -232,7 +233,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 2,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewTask(taskToAdd);
         taskManager.createNewEpic(epic);
@@ -253,7 +254,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         Epic epic = new Epic("Summary",
                 "Description",
                 Status.IN_PROGRESS);
@@ -262,7 +263,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 2,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewTask(taskToAdd);
         taskManager.createNewEpic(epic);
@@ -300,7 +301,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         taskManager.createNewTask(taskToAdd);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -318,7 +319,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         taskManager.createNewTask(taskToAdd);
 
         Task addedTask = taskManager.getTaskById(1);
@@ -380,7 +381,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -404,7 +405,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -433,7 +434,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -454,13 +455,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         taskManager.createNewTask(taskToAdd);
         Task taskForUpdate = new Task("Summary",
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         taskForUpdate.setId(2);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -475,14 +476,14 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         taskManager.createNewTask(taskToAdd);
 
         Task taskForUpdate = new Task("Summary",
                 "Description",
                 Status.IN_PROGRESS,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(1));
+                LOCAL_DATE_TIME.plusMinutes(1));
         taskForUpdate.setId(1);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -500,14 +501,14 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         taskManager.createNewTask(taskToAdd);
 
         Task taskForUpdate = new Task("Summary",
                 "Description",
                 Status.IN_PROGRESS,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         taskForUpdate.setId(1);
         taskManager.updateTask(taskForUpdate);
 
@@ -571,7 +572,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -581,7 +582,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
         subTaskToUpdate.setId(2);
 
         taskManager.updateSubTask(subTaskToUpdate);
@@ -590,10 +591,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 () -> assertEquals(1, taskManager.getCatalogOfEpics().size()),
                 () -> assertEquals(1, taskManager.getCatalogOfSubTasks().size()),
                 () -> assertEquals(Status.IN_PROGRESS, taskManager.getCatalogOfSubTasks().get(2).getStatus()),
-                () -> assertEquals(ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION), taskManager
+                () -> assertEquals(LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION), taskManager
                         .getCatalogOfSubTasks().get(2).getStartTime()),
                 () -> assertEquals(Status.IN_PROGRESS, taskManager.getCatalogOfEpics().get(1).getStatus()),
-                () -> assertEquals(ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION), taskManager.getCatalogOfEpics()
+                () -> assertEquals(LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION), taskManager.getCatalogOfEpics()
                         .get(1).getStartTime())
         );
     }
@@ -608,7 +609,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -618,7 +619,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
         subTaskToUpdate.setId(3);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -644,13 +645,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         SubTask subTaskToAddConflict = new SubTask("Summary",
                 "Description",
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -661,7 +662,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
         subTaskToUpdate.setId(2);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -683,7 +684,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         taskManager.createNewTask(taskToAdd);
 
         assertEquals(1, taskManager.getCatalogOfTasks().size(),
@@ -700,7 +701,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         taskManager.createNewTask(taskToAdd);
 
         assertEquals(1, taskManager.getCatalogOfTasks().size(),
@@ -722,7 +723,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -750,7 +751,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -780,13 +781,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         SubTask subTaskToAddToDelete = new SubTask("Summary",
                 "Second subTask description",
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -820,13 +821,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         SubTask subTaskToAddNumberTwo = new SubTask("Summary",
                 "Second subTask description",
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -854,13 +855,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         SubTask subTaskToAddNumberTwo = new SubTask("Summary",
                 "Second subTask description",
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -876,13 +877,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         SubTask subTaskToAddNumberTwoUpdate = new SubTask("Summary",
                 "Second subTask description",
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
         subTaskToAddUpdate.setId(2);
         subTaskToAddNumberTwoUpdate.setId(3);
 
@@ -903,13 +904,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         SubTask subTaskToAddNumberTwo = new SubTask("Summary",
                 "Second subTask description",
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -926,13 +927,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.DONE,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         SubTask subTaskToAddNumberTwoUpdate = new SubTask("Summary",
                 "Second subTask description",
                 Status.DONE,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
         subTaskToAddUpdate.setId(2);
         subTaskToAddNumberTwoUpdate.setId(3);
 
@@ -953,13 +954,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         SubTask subTaskToAddNumberTwo = new SubTask("Summary",
                 "Second subTask description",
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -976,13 +977,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         SubTask subTaskToAddNumberTwoUpdate = new SubTask("Summary",
                 "Second subTask description",
                 Status.DONE,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
         subTaskToAddUpdate.setId(2);
         subTaskToAddNumberTwoUpdate.setId(3);
 
@@ -1003,13 +1004,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.DONE,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         SubTask subTaskToAddNumberTwo = new SubTask("Summary",
                 "Second subTask description",
                 Status.DONE,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -1026,13 +1027,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         SubTask subTaskToAddNumberTwoUpdate = new SubTask("Summary",
                 "Second subTask description",
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION));
         subTaskToAddUpdate.setId(2);
         subTaskToAddNumberTwoUpdate.setId(3);
 
@@ -1053,17 +1054,17 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         Task taskTwo = new Task("Summary",
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.minusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.minusMinutes(TASK_DEFAULT_DURATION));
         Task taskThree = new Task("Summary",
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 2));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 2));
 
         taskManager.createNewTask(taskOne);
         taskManager.createNewTask(taskTwo);
@@ -1085,17 +1086,17 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         Task taskTwo = new Task("Summary",
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.minusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.minusMinutes(TASK_DEFAULT_DURATION));
         Task taskThree = new Task("Summary",
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 2));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 2));
 
         taskManager.createNewTask(taskOne);
         taskManager.createNewTask(taskTwo);
@@ -1105,7 +1106,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.minusMinutes(TASK_DEFAULT_DURATION * 3));
+                LOCAL_DATE_TIME.minusMinutes(TASK_DEFAULT_DURATION * 3));
         taskFour.setId(3);
 
         taskManager.updateTask(taskFour);
@@ -1126,17 +1127,17 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         Task taskTwo = new Task("Summary",
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.minusMinutes(TASK_DEFAULT_DURATION));
+                LOCAL_DATE_TIME.minusMinutes(TASK_DEFAULT_DURATION));
         Task taskThree = new Task("Summary",
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 2));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 2));
 
         taskManager.createNewTask(taskOne);
         taskManager.createNewTask(taskTwo);
@@ -1159,10 +1160,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Description",
                 Status.NEW,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         taskManager.createNewTask(task);
 
-        assertEquals(ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION),
+        assertEquals(LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION),
                 taskManager.getCatalogOfTasks().get(1).getEndTime());
     }
 
@@ -1176,13 +1177,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         SubTask subTaskToAddNumberTwo = new SubTask("Summary",
                 "Second subTask description",
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 3));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 3));
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -1190,8 +1191,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         assertAll(
                 () -> assertEquals(40, taskManager.getCatalogOfEpics().get(1).getDuration()),
-                () -> assertEquals(ZONED_DATE_TIME, taskManager.getCatalogOfEpics().get(1).getStartTime()),
-                () -> assertEquals(ZONED_DATE_TIME.plusMinutes(40),
+                () -> assertEquals(LOCAL_DATE_TIME, taskManager.getCatalogOfEpics().get(1).getStartTime()),
+                () -> assertEquals(LOCAL_DATE_TIME.plusMinutes(40),
                         taskManager.getCatalogOfEpics().get(1).getEndTime())
         );
     }
@@ -1206,13 +1207,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         SubTask subTaskToAddNumberTwo = new SubTask("Summary",
                 "Second subTask description",
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 2));
+                LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION * 2));
 
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTaskToAdd);
@@ -1223,15 +1224,15 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.IN_PROGRESS,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME.minusMinutes(50));
+                LOCAL_DATE_TIME.minusMinutes(50));
         subTaskToUpdate.setId(3);
 
         taskManager.updateSubTask(subTaskToUpdate);
 
         assertAll(
                 () -> assertEquals(60, taskManager.getCatalogOfEpics().get(1).getDuration()),
-                () -> assertEquals(ZONED_DATE_TIME.minusMinutes(50), taskManager.getCatalogOfEpics().get(1).getStartTime()),
-                () -> assertEquals(ZONED_DATE_TIME.plusMinutes(10),
+                () -> assertEquals(LOCAL_DATE_TIME.minusMinutes(50), taskManager.getCatalogOfEpics().get(1).getStartTime()),
+                () -> assertEquals(LOCAL_DATE_TIME.plusMinutes(10),
                         taskManager.getCatalogOfEpics().get(1).getEndTime())
         );
     }
@@ -1246,11 +1247,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Status.NEW,
                 1,
                 TASK_DEFAULT_DURATION,
-                ZONED_DATE_TIME);
+                LOCAL_DATE_TIME);
         taskManager.createNewEpic(epicToAdd);
         taskManager.createNewSubTask(subTask);
 
-        assertEquals(ZONED_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION),
+        assertEquals(LOCAL_DATE_TIME.plusMinutes(TASK_DEFAULT_DURATION),
                 taskManager.getCatalogOfSubTasks().get(2).getEndTime());
     }
 }

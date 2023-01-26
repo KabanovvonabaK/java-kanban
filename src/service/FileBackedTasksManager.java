@@ -4,9 +4,10 @@ import exceptions.ManagerSaveException;
 import model.*;
 
 import java.io.*;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static model.Types.*;
@@ -119,7 +120,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return subTask;
     }
 
-    private void save() {
+    protected void save() {
         File tmpFile = new File("resources" + File.separator + "tmp.csv");
         try {
             Files.delete(tmpFile.toPath());
@@ -206,7 +207,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         Status status = Status.valueOf(s[3]);
         switch (valueOf(s[1])) {
             case TASK:
-                task = new Task(s[2], s[4], status, Long.parseLong(s[6]), ZonedDateTime.parse(s[7]));
+                task = new Task(s[2], s[4], status, Long.parseLong(s[6]), LocalDateTime.parse(s[7]));
                 task.setId(Integer.parseInt(s[0]));
                 break;
             case EPIC:
@@ -221,7 +222,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 это не проверять
                  */
                 task = new SubTask(s[2], s[4], status, Integer.parseInt(s[5]),
-                        Long.parseLong(s[6]), ZonedDateTime.parse(s[7]));
+                        Long.parseLong(s[6]), LocalDateTime.parse(s[7]));
                 task.setId(Integer.parseInt(s[0]));
                 break;
             default:
@@ -335,7 +336,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 new File("resources" + File.separator + "dbForTests.csv"));
 
         Task taskAnotherOne = new Task("Task created manually1", "desc", Status.NEW,
-                30, ZonedDateTime.now());
+                30, LocalDateTime.now());
         managerLoadFromFile.createNewTask(taskAnotherOne);
         managerLoadFromFile.getTaskById(taskAnotherOne.getId());
 
@@ -349,7 +350,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 : "list of SubTasks for wrong size";
 
         Task taskToCompare = new Task("Task1", "Description task1", Status.NEW,
-                30, ZonedDateTime.parse("2023-01-19T00:00:00.000000+03:00[Europe/Moscow]"));
+                30, LocalDateTime.parse("2023-01-19T00:00:00.000000+03:00[Europe/Moscow]"));
         taskToCompare.setId(3);
         Epic epicToCompare1 = new Epic("Epic2", "Description epic2 from file", Status.DONE);
         epicToCompare1.setId(1);
@@ -360,7 +361,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         subTasksIdsFroEpicToCompare2.add(5);
         epicToCompare2.setSubTasksIds(subTasksIdsFroEpicToCompare2);
         SubTask subTaskToCompare = new SubTask("Sub Task2", "Description sub task3", Status.DONE,
-                2, 30, ZonedDateTime.parse("2023-01-19T00:30:00.000000+03:00[Europe/Moscow]"));
+                2, 30, LocalDateTime.parse("2023-01-19T00:30:00.000000+03:00[Europe/Moscow]"));
         subTaskToCompare.setId(4);
 
         Map<Integer, Epic> listOfEpics = managerLoadFromFile.getCatalogOfEpics();

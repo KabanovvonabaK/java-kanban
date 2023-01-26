@@ -1,13 +1,14 @@
 package model;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class Epic extends Task {
     private ArrayList<Integer> subTasksIds;
-    private long duration;
-    private ZonedDateTime startTime;
+    private long durationEpic;
+    private LocalDateTime startTimeEpic;
 
     public Epic(String summary, String description, Status status) {
         super(summary, description, status, 0, null);
@@ -26,28 +27,28 @@ public class Epic extends Task {
         this.subTasksIds = subTasksIds;
     }
 
-    public void setStartTime(ZonedDateTime startTime) {
-        this.startTime = startTime;
+    public void setStartTimeEpic(LocalDateTime startTimeEpic) {
+        this.startTimeEpic = startTimeEpic;
     }
 
     @Override
     public void setDuration(long duration) {
-        this.duration = duration;
+        this.durationEpic = duration;
     }
 
     @Override
     public long getDuration() {
-        return duration;
+        return durationEpic;
     }
 
-    public ZonedDateTime getStartTime() {
-        return startTime;
+    public LocalDateTime getStartTime() {
+        return startTimeEpic;
     }
 
     @Override
-    public ZonedDateTime getEndTime() {
-        if (startTime != null) {
-            return startTime.plusMinutes(duration);
+    public LocalDateTime getEndTime() {
+        if (startTimeEpic != null) {
+            return startTimeEpic.plusMinutes(durationEpic);
         } else {
             throw new RuntimeException("End time is null for epic with id " + getId());
         }

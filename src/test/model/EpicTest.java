@@ -1,5 +1,6 @@
 package model;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
@@ -60,8 +61,8 @@ class EpicTest {
 
     @Test
     void setStartTimeTest() {
-        ZonedDateTime zonedDateTime = ZonedDateTime.now();
-        epic.setStartTime(zonedDateTime);
+        LocalDateTime zonedDateTime = LocalDateTime.now();
+        epic.setStartTimeEpic(zonedDateTime);
 
         assertEquals(zonedDateTime, epic.getStartTime());
     }

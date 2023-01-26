@@ -3,6 +3,7 @@ package model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SubTaskTest {
 
     SubTask subTask;
-    ZonedDateTime zonedDateTime = ZonedDateTime.now();
+    LocalDateTime zonedDateTime = LocalDateTime.now();
 
     @BeforeEach
     public void beforeEach() {
