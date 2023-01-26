@@ -9,8 +9,8 @@ import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
+import service.FileBackedTasksManager;
 import service.Managers;
-import service.TaskManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +22,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static java.net.HttpURLConnection.*;
 
@@ -31,7 +33,7 @@ public class HttpTaskServer {
 
     private HttpServer httpServer;
 
-    private static final TaskManager TASK_MANAGER = Managers.getFileBackedTaskManager();
+    private static final FileBackedTasksManager TASK_MANAGER = Managers.getFileBackedTaskManager();
 
     public static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
@@ -59,6 +61,7 @@ public class HttpTaskServer {
     }
 
     public void stopServer() {
+        TASK_MANAGER.replaceOriginalFileWithTmp();
         httpServer.stop(1);
     }
 
@@ -278,7 +281,7 @@ public class HttpTaskServer {
                                 TASK_MANAGER.removeEpicById(id);
                                 sendResponse(exchange,
                                         "Epic with id " + id +
-                                                "and it's subtasks " + subTasksIds +
+                                                " and it's subtasks " + subTasksIds +
                                                 " removed successfully",
                                         HTTP_OK);
                             } else {

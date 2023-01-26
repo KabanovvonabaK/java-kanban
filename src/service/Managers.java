@@ -13,7 +13,7 @@ public class Managers {
         return new InMemoryHistoryManager();
     }
 
-    public static TaskManager getFileBackedTaskManager() {
+    public static FileBackedTasksManager getFileBackedTaskManager() {
         try {
             return FileBackedTasksManager.loadFromFile(new File("resources" + File.separator + "dbForTests.csv"));
         } catch (IOException e) {

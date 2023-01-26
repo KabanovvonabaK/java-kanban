@@ -4,7 +4,6 @@ import exceptions.ManagerSaveException;
 import model.*;
 
 import java.io.*;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.time.LocalDateTime;
@@ -294,7 +293,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         (если они вообще тут помогут), поэтому реализовал через два файла.
         Как накладные расходы - этот метод надо принудительно вызывать, похоже на закрытие сессии.
      */
-    private void replaceOriginalFileWithTmp() {
+    public void replaceOriginalFileWithTmp() {
         File tmpFile = new File("resources" + File.separator + "tmp.csv");
         try {
             File originalFile = file;
